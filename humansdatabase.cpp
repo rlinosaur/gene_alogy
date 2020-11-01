@@ -1640,7 +1640,7 @@ QString HumansDatabase::getPlaceSearchQuery(QString searchString,unsigned int fl
     if(flags&COMMONSEARCHFLAG_COUNTQUERY)
         mainRequest = "SELECT count(id) FROM places";
     else
-        mainRequest = "SELECT id,type,name,anothernames,note FROM places";
+        mainRequest = "SELECT id,type,name,anothernames,coordinates,note FROM places";
     if(!whereStr.isEmpty())
         mainRequest.append(whereStr);
     mainRequest.append(" ORDER BY name ASC");

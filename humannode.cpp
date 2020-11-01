@@ -48,6 +48,7 @@ Q_UNUSED(option);
     painter->setPen(humanPen);
     painter->setBrush(humanBrush);
     painter->drawRect(humanRect);
+    //painter->drawArc(humanRect,0,300);
     painter->drawText(humanRect,humanText);
 }
 

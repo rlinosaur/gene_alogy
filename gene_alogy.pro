@@ -5,6 +5,7 @@
 #-------------------------------------------------
 
 QT       += core gui sql
+QT += location
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 TARGET = gene_alogy
@@ -39,7 +40,8 @@ SOURCES += main.cpp\
     geneoptions.cpp \
     optionsdialog.cpp \
     options.cpp \
-    recordsourceeditdialog.cpp
+    recordsourceeditdialog.cpp \
+    mapdialog.cpp
 
 HEADERS  += mainwindow.h \
     humandata.h \
@@ -66,7 +68,8 @@ HEADERS  += mainwindow.h \
     geneoptions.h \
     optionsdialog.h \
     options.h \
-    recordsourceeditdialog.h
+    recordsourceeditdialog.h \
+    mapdialog.h
 
 FORMS    += mainwindow.ui \
     gedcomimportdialog.ui \
@@ -82,14 +85,17 @@ FORMS    += mainwindow.ui \
     visualizedialog.ui \
     humanplacedialog.ui \
     optionsdialog.ui \
-    recordsourceeditdialog.ui
+    recordsourceeditdialog.ui \
+    mapdialog.ui
 
 OTHER_FILES += \
     database.txt \
     find_tasks.txt
 
 DISTFILES += \
-    todo.txt
+    todo.txt \
+    MapQmlDialogForm.ui.qml \
+    MapQmlDialog.qml
 
 TRANSLATIONS = languages/gene_alogy_translation_en.ts \
                languages/gene_alogy_translation_es.ts \

@@ -5,6 +5,8 @@
 #include <QDateTime>
 #include <QSettings>
 
+#include "map
+
 #include "options.h"
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
@@ -1171,4 +1173,9 @@ void MainWindow::on_action_triggered()
     }
 
     on_tabWidget_currentChanged(ui->tabWidget->currentIndex());
+}
+
+void MainWindow::on_pushButtonMap_clicked()
+{
+    mapQ
 }

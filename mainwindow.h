@@ -109,6 +109,8 @@ private slots:
 
     void on_action_triggered();
     
+    void on_pushButtonMap_clicked();
+
 private:
     Ui::MainWindow *ui;
     QTranslator translator; // contains the translations for this application
