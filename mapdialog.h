@@ -1,6 +1,10 @@
 #ifndef MAPDIALOG_H
 #define MAPDIALOG_H
 
+#include <QtQuick/QQuickItem>
+#include <QQuickView>
+#include <QSplitter>
+
 #include <QDialog>
 //#include <Qt>
 
@@ -22,6 +26,14 @@ private slots:
 
 private:
     Ui::MapDialog *ui;
+
+     QSplitter *mainVerticalSplitter;
+
+    QQuickItem *mapItem;
+    QQuickView *mapView;
+    QWidget *mapContainer;
+
+    QWidget *bottomWidget = new QWidget;
 };
 
 #endif // MAPDIALOG_H

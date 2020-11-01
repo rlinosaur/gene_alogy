@@ -5,8 +5,6 @@
 #include <QDateTime>
 #include <QSettings>
 
-#include "map
-
 #include "options.h"
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
@@ -20,6 +18,7 @@
 #include "placeeditdialog.h"
 #include "visualizedialog.h"
 #include "optionsdialog.h"
+#include "mapdialog.h"
 
 #include "tablerawdatedelegate.h"
 
@@ -1177,5 +1176,7 @@ void MainWindow::on_action_triggered()
 
 void MainWindow::on_pushButtonMap_clicked()
 {
-    mapQ
+    MapDialog dlg;
+    //Тут бы надо бы передать список объектов откуда-нибудь. Напишем спец.функцию.
+    dlg.exec();
 }

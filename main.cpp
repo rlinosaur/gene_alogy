@@ -20,7 +20,7 @@ int main(int argc, char *argv[])
     // Qt4 code
     QTextCodec *codec=QTextCodec::codecForName("UTF-8");
     QTextCodec::setCodecForTr(codec);
-    QTextCodec::setCodecForCStrings(codec);    
+    QTextCodec::setCodecForCStrings(codec);
     QTextCodec::setCodecForLocale(codec);
 #endif
     //QTextCodec::setCodecForLocale(codec);//Оказывается это даёт там в консоле кракозяблы. Ну надо же.

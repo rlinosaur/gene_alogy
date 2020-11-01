@@ -1,0 +1,208 @@
+import QtQuick 2.14
+import QtLocation 5.14
+import QtQuick.Controls 2.14
+import QtGraphicalEffects 1.14
+import QtPositioning 5.14
+import QtQuick.Controls 2.14
+import QtQuick.Dialogs 1.3
+
+MapQuickItem
+{
+    id: marker
+    objectName: "dMark"
+    property string ip
+    property string name
+    property bool visibility:true
+    visible: visibility
+    //property int status
+    property string status:"Ожидание результатов опроса";
+    autoFadeIn:false;
+    property string blinkColor:"crimson";
+    property string originalColor:"lightgray";
+    property string prevColor;
+    property bool blinked:false;
+    property bool isBlinking:false;
+   // property bool fastBlink:false;//Чтобы быстрее проверять наличие в списке
+   // property bool slowBlink:false;//Чтобы быстрее проверять наличие в списке
+    property int timerInterval;
+    property int timerSlowBlink;
+    property int timerStep:timerInterval/2;
+    property int timerCount:0;
+    //не хочется делать таймер...хотя...а почему нет, собственно?
+    //Для теста сделаем пока каждому свой таймер (я думаю, что система уже на паре десятков загнётся).
+    //А уже когда будет массовость - перенесём таймер куда-нить в main.qml, а может вообще откажемся от этой идеи.
+
+    /*
+    //Альтернативный вариант. По-моему работает как надо везде.
+    sourceItem:    
+        Rectangle {
+        width: 21;
+        height: 21;
+        color: "lightgray";
+        border.width: 2;
+        border.color: "white";
+        smooth: true;
+        radius: 10
+    }
+*/
+/*
+  //Похоже тупиковый вариант, но для истории оставлю.
+  sourceItem:
+        Image {
+            anchors.centerIn: parent
+            id: image
+            property string color:"lightgray"//цвет по умолчанию, ага.
+            source: "qrc:/marker.svg"
+            transform: Scale{xScale:1.27;yScale:1.27;}
+            layer {
+                enabled: true
+                effect: ColorOverlay {
+                    color: image.color
+                }
+            }
+        }
+*/
+    //Отличный вариант, но неправильно работает на некоторых ноутбуках (какая-то лажа, откровенно говоря, похоже что-то с видеодрайвером).
+    sourceItem:
+        Image {
+                anchors.centerIn: parent
+                id: image
+                property string color:"lightgray"//цвет по умолчанию, ага.
+                //source: "qrc:/marker.png"
+                source: "qrc:/marker.svg"
+                transform: Scale{xScale:1.27;yScale:1.27;}
+                //antialiasing: true
+                visible: true
+                //как достать цвет оверлея? Если не можешь достать цвет оверлея - задай его!
+                ColorOverlay{
+                    id: cOverlay
+                    anchors.fill: image
+                    source:image
+                    color:image.color
+                    //transform:rotation
+                    //antialiasing: true
+                }
+        }
+
+    opacity:1.0
+    anchorPoint.x: image.width / 2
+    anchorPoint.y: image.height / 2
+
+    MouseArea {
+        id: marea
+        anchors.fill: parent    
+        onClicked: map.markerClick(ip+";"+status)
+        hoverEnabled: true
+        //onEntered: function(){console.log("entered the area");}
+        //onExited: function(){console.log("Exited the area");}
+    }
+
+
+
+    ToolTip {
+                visible: marea.containsMouse
+                delay: 0                
+                contentItem: Text{
+                            font.family: "tahoma"
+                            font.pixelSize: 24
+                           text: {                               
+                                qsTr(name+"\n ipv4:"+ip+"\n Статус:"+status)
+                           }
+                       }
+                       background: Rectangle {                          
+                           border.color:image.color;
+                           //color: "lightgray"
+                       }
+    }
+
+    function blink()
+    {
+        //Заменяет текущий цвет на цвет мигания (по умолчанию) или наоборот.
+        // Значит мы должны хранить где-то оригинальный цвет originalColor (и дублировать его ради мигания).
+        if(blinked===false)
+        {
+            blinked=true;
+            sourceItem.color=blinkColor;
+        }
+        else
+        {
+            blinked=false;
+            sourceItem.color=originalColor;
+        }
+    }
+    function setColor(color)
+    {
+        sourceItem.color=color;
+        prevColor = originalColor;
+        originalColor=color;        
+    }
+    function setPrevColor(color)
+    {
+        originalColor = prevColor;
+    }
+
+    function setRandomColor(color)
+    {
+        setColor(Qt.rgba(Math.random(),Math.random(),Math.random(),1));
+    }
+    function setCoordinates(latitude,longitude)
+    {
+        coordinate=QtPositioning.coordinate(latitude,longitude);
+    }
+
+    function setRandomCoordinates()
+    {
+        setCoordinates(Math.random()*180-90,Math.random()*360-180);
+    }
+
+    function setData(devName,devLat,devLon,devStatus)
+    {
+        name=devName;
+        setCoordinates(devLat,devLon);
+        //status=devStatus;
+    }
+
+    function setBlinkFast()
+    {
+        timerInterval = 1000;
+        isBlinking = true;
+        timer.start();
+
+        //fastBlink=true;
+//        slowBlink=false;
+    }
+    function setBlinkSlow()
+    {
+        timerInterval = 5000;
+        timer.start();
+        isBlinking = true;
+        //fastBlink=false;
+       // slowBlink=true;
+    }
+
+    function setBlinkOff()
+    {
+       // fastBlink=false;
+       // slowBlink=false;
+        timer.stop();
+        isBlinking = false;//флаг для статуса (надо бы его исключить со временем)
+        blinked=false;//флаг для таймера.
+        sourceItem.color=originalColor;
+    }
+
+
+    Timer {
+            id: timer
+            interval: timerInterval
+            repeat: true
+            running: true
+            onTriggered: {
+                timerCount+=timerStep;
+                if(timerCount>=timerInterval)timerCount=0;
+                blink();
+                //if(fastBlink) blink();
+                //if(slowBlink && timerCount===timerStep)blink();
+                //if(slowBlink) blink();
+            }
+    }
+}

@@ -45,6 +45,17 @@
     </item>
    </layout>
   </widget>
+  <widget class="QWidget" name="verticalLayoutWidget">
+   <property name="geometry">
+    <rect>
+     <x>140</x>
+     <y>80</y>
+     <width>541</width>
+     <height>231</height>
+    </rect>
+   </property>
+   <layout class="QVBoxLayout" name="verticalLayout"/>
+  </widget>
  </widget>
  <resources/>
  <connections/>

@@ -4,8 +4,8 @@
 #
 #-------------------------------------------------
 
-QT       += core gui sql
-QT += location
+QT       += core gui sql qml quick quickwidgets
+
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 TARGET = gene_alogy
@@ -88,14 +88,15 @@ FORMS    += mainwindow.ui \
     recordsourceeditdialog.ui \
     mapdialog.ui
 
+RESOURCES += resources.qrc
+
+
 OTHER_FILES += \
     database.txt \
     find_tasks.txt
 
 DISTFILES += \
-    todo.txt \
-    MapQmlDialogForm.ui.qml \
-    MapQmlDialog.qml
+    todo.txt
 
 TRANSLATIONS = languages/gene_alogy_translation_en.ts \
                languages/gene_alogy_translation_es.ts \
