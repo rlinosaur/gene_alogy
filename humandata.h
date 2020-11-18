@@ -134,6 +134,9 @@ struct PlaceData
     QString note;
     QString coordinates;//В свободной форме пока, я думаю это ок.
     QString owner;
+    QString latitude;
+    QString longitude;
+    QString coordAccuracy;
 };
 
 struct SourceData

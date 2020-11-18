@@ -3,7 +3,7 @@
 #include "mapdialog.h"
 #include "ui_mapdialog.h"
 
-MapDialog::MapDialog(QWidget *parent) :
+MapDialog::MapDialog(HumansDatabase *humansDatabase, QWidget *parent) :
     QDialog(parent),
     ui(new Ui::MapDialog)
 {
@@ -42,6 +42,9 @@ MapDialog::MapDialog(QWidget *parent) :
 
 
     mapContainer->resize(mapContainer->width(),this->height());
+
+    qDebug()<<"test existence of coordinates "<<humansDatabase->isFieldExists("places","coordinates");
+    qDebug()<<"test existence of lan "<<humansDatabase->isFieldExists("places","lan");
 
 
 

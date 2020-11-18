@@ -6,7 +6,8 @@
 #include <QSplitter>
 
 #include <QDialog>
-//#include <Qt>
+
+#include "humansdatabase.h"
 
 
 namespace Ui {
@@ -18,7 +19,7 @@ class MapDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit MapDialog(QWidget *parent = 0);
+    explicit MapDialog(HumansDatabase *humansDatabase, QWidget *parent = 0);
     ~MapDialog();
 
 private slots:

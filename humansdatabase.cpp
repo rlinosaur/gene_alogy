@@ -34,6 +34,12 @@ void HumansDatabase::init(QString fileName)
     {
         mess("Last error"+db.lastError().databaseText()+",driver:"+db.lastError().driverText());
     }
+
+    //Патч базы данных, если необходимо
+    if(db.isOpen())
+    {
+        patchDatabase();
+    }
 }
 
 bool HumansDatabase::isOpen()
@@ -98,8 +104,8 @@ bool HumansDatabase::createTables()
     q.prepare("CREATE TABLE IF NOT EXISTS recordsources (id CHAR(38) PRIMARY KEY NOT NULL, recordid CHAR(38), sourceid CHAR(38), location TEXT, note TEXT, UNIQUE (recordid, sourceid))");
     q.exec();//С уникальностью я может и переборщил, но пусть будет пока.
 
-    //Таблица мест, которые упоминаются в записях (полезно, между прочим).
-    q.prepare("CREATE TABLE IF NOT EXISTS places (id CHAR(38) PRIMARY KEY NOT NULL, name TEXT, type TEXT, anothernames TEXT, coordinates TEXT, note TEXT, owner CHAR(38));");
+    //Таблица мест, которые упоминаются в записях (полезно, между прочим).    
+    q.prepare("CREATE TABLE IF NOT EXISTS places (id CHAR(38) PRIMARY KEY NOT NULL, name TEXT, type TEXT, anothernames TEXT, lan REAL, lot REAL,coordacc INTEGER, note TEXT, owner CHAR(38));");
     q.exec();
 
     //Таблица связи людей с местами
@@ -147,6 +153,24 @@ bool HumansDatabase::isTableExists(QString tableName)
     q.exec();
     if(!q.first()) return false;
     return q.record().value(0).toBool();
+}
+
+bool HumansDatabase::isFieldExists(QString tableName, QString fieldName)
+{
+    QSqlQuery q(db);
+    bool res=q.exec("PRAGMA table_info('"+tableName+"')");
+    if(!res)
+    {
+        mess("isFieldExists error: "+q.lastError().databaseText()+",driver:"+q.lastError().driverText());
+        return false;
+    }
+    if(!q.first()) return false;
+    do
+    {
+        QSqlRecord rec=q.record();
+        if(rec.value(rec.indexOf("name")).toString()==fieldName) return true;
+    }while(q.next());
+    return false;
 }
 
 bool HumansDatabase::clearTable(QString tableName)
@@ -706,12 +730,14 @@ bool HumansDatabase::addPlace(PlaceData place)
 {
     if(!this->isOpen())return false;
     QSqlQuery q(db);
-    q.prepare ("INSERT OR IGNORE INTO places (id,name,type,anothernames,coordinates,note,owner) VALUES(:id,:name,:type,:anothernames,:coordinates,:note,:owner);");
+    q.prepare ("INSERT OR IGNORE INTO places (id,name,type,anothernames,lat,lon,coordacc,note,owner) VALUES(:id,:name,:type,:anothernames,:lat,:lon,:coordacc,:note,:owner);");
     q.bindValue(":id",place.uuid);
     q.bindValue(":name",place.name);
     q.bindValue(":type",place.type);
     q.bindValue(":anothernames",place.anotherNames.join(";"));
-    q.bindValue(":coordinates",place.coordinates);
+    q.bindValue(":lat",place.latitude);
+    q.bindValue(":lon",place.longitude);
+    q.bindValue(":coordacc",place.coordAccuracy);
     q.bindValue(":note",place.note);
     q.bindValue(":owner",place.owner);
     bool res=q.exec();
@@ -724,12 +750,14 @@ bool HumansDatabase::editPlace(PlaceData place)
 {
     if(!this->isOpen())return false;
     QSqlQuery q(db);
-    q.prepare("UPDATE OR IGNORE places set name=:name,type=:type,anothernames=:anothernames,coordinates=:coordinates,note=:note,owner=:owner WHERE id=:id;");
+    q.prepare("UPDATE OR IGNORE places set name=:name,type=:type,anothernames=:anothernames,lat=:lat,lon=:lon, coordacc=:coordacc, note=:note,owner=:owner WHERE id=:id;");
     q.bindValue(":id",place.uuid);
     q.bindValue(":name",place.name);
     q.bindValue(":type",place.type);
     q.bindValue(":anothernames",place.anotherNames.join(";"));
-    q.bindValue(":coordinates",place.coordinates);
+    q.bindValue(":lat",place.latitude);
+    q.bindValue(":lon",place.longitude);
+    q.bindValue(":coordacc",place.coordAccuracy);
     q.bindValue(":note",place.note);
     q.bindValue(":owner",place.owner);
     bool res=q.exec();
@@ -747,7 +775,7 @@ PlaceData HumansDatabase::getPlace(QString uuid)
     }
     QSqlQuery q(db);
     //qDebug()<<"Getting place for "<<uuid;
-    q.prepare("SELECT id,name,type,anothernames,coordinates,note,owner FROM places WHERE id=:id LIMIT 1;");
+    q.prepare("SELECT id,name,type,anothernames,lat,lon,coordacc,note,owner FROM places WHERE id=:id LIMIT 1;");
     q.bindValue(":id",uuid);
     //qDebug()<<"Query validation:"<<q.isValid();
     q.exec();
@@ -763,8 +791,10 @@ PlaceData HumansDatabase::getPlace(QString uuid)
     placeData.name=rec.value(rec.indexOf("name")).toString();
     placeData.type=rec.value(rec.indexOf("type")).toString();
     placeData.anotherNames=rec.value(rec.indexOf("anothernames")).toString().split(";");
-    if(placeData.anotherNames.count()==1 && placeData.anotherNames[0].isEmpty())placeData.anotherNames.clear();
-    placeData.coordinates=rec.value(rec.indexOf("coordinates")).toString();
+    if(placeData.anotherNames.count()==1 && placeData.anotherNames[0].isEmpty())placeData.anotherNames.clear();    
+    placeData.latitude=rec.value(rec.indexOf("lat")).toString();
+    placeData.longitude=rec.value(rec.indexOf("lon")).toString();
+    placeData.coordAccuracy=rec.value(rec.indexOf("coordacc")).toString();
     placeData.note=rec.value(rec.indexOf("note")).toString();
     placeData.owner=rec.value(rec.indexOf("owner")).toString();
     return placeData;
@@ -1368,7 +1398,7 @@ QList<QStringList> HumansDatabase::getPlacesOfRecordInfo(QString recordId)
     QList<QStringList> list;
     if(!this->isOpen())return list;
     QSqlQuery q(db);
-    q.prepare("SELECT id,name,type,anothernames,coordinates FROM places WHERE id IN (SELECT placeid FROM recordplaces WHERE recordid=:recordid);");    
+    q.prepare("SELECT id,name,type,anothernames,lat,lon,coordacc FROM places WHERE id IN (SELECT placeid FROM recordplaces WHERE recordid=:recordid);");
     q.bindValue(":recordid", recordId);
     bool res=q.exec();
     if(!res)
@@ -1640,7 +1670,7 @@ QString HumansDatabase::getPlaceSearchQuery(QString searchString,unsigned int fl
     if(flags&COMMONSEARCHFLAG_COUNTQUERY)
         mainRequest = "SELECT count(id) FROM places";
     else
-        mainRequest = "SELECT id,type,name,anothernames,coordinates,note FROM places";
+        mainRequest = "SELECT id,type,name,anothernames,lat,lon,coordacc,note FROM places";
     if(!whereStr.isEmpty())
         mainRequest.append(whereStr);
     mainRequest.append(" ORDER BY name ASC");
@@ -1689,9 +1719,15 @@ QString HumansDatabase::getPlaceInfoFromRecord(QSqlRecord record)
     QString anothernames=record.value(record.indexOf("anothernames")).toString();
     if(!anothernames.isEmpty())
         placeInfo.append("("+anothernames+")");
-    QString coordinates=record.value(record.indexOf("coordinates")).toString();
-    if(!coordinates.isEmpty())
-        placeInfo.append(", "+coordinates);
+    QString lat=record.value(record.indexOf("lat")).toString();
+    QString lon=record.value(record.indexOf("lon")).toString();
+    QString coordacc=record.value(record.indexOf("coordacc")).toString();
+    QStringList coordinates;
+    if(!lat.isEmpty()) coordinates.append(lat);
+    if(!lon.isEmpty()) coordinates.append(lon);
+    if(!coordacc.isEmpty())coordinates.append(coordacc);
+    if(coordinates.size()>1)
+        placeInfo.append(", coord:"+coordinates.join(", "));
     return placeInfo;
 }
 
@@ -1753,4 +1789,25 @@ HumanData HumansDatabase::getHumanDataFromRecord(QSqlRecord record)
         humanData.owner=HumansDatabase::getUuidFromString(owner);
 
     return humanData;
+}
+
+void HumansDatabase::patchDatabase()
+{
+    if(!isFieldExists("places","lat"))
+    {
+        QSqlQuery q(db);
+        bool res;
+        res=q.exec("ALTER TABLE places ADD COLUMN lat REAL;");//широта
+        if(!res)
+            mess("Last error"+db.lastError().databaseText()+",driver:"+db.lastError().driverText());
+        res=q.exec("ALTER TABLE places ADD COLUMN lon REAL;");//долгота
+        if(!res)
+            mess("Last error"+db.lastError().databaseText()+",driver:"+db.lastError().driverText());
+        res=q.exec("ALTER TABLE places ADD COLUMN coordacc INTEGER;");//точность в метрах
+        if(!res)
+            mess("Last error"+db.lastError().databaseText()+",driver:"+db.lastError().driverText());
+        //Это не особо работает, кстати...Ограничения sqlite. Оставим для совместимости. Пока.
+        //res=q.exec("ALTER TABLE places DROP COLUMN coordinates;");
+    }
+
 }

@@ -2,6 +2,7 @@
     <qresource prefix="/">
         <file>map.qml</file>
         <file>marker.qml</file>    
+        <file>setupmap.qml</file> 
         <file alias="marker.svg">images/marker.svg</file>
     </qresource>
 </RCC>

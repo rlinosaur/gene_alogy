@@ -35,6 +35,7 @@ public:
     bool createIndices();
 
     bool isTableExists(QString tableName);
+    bool isFieldExists(QString tableName, QString fieldName);
 
     bool clearTable(QString tableName);
     bool transactionStart();
@@ -115,6 +116,9 @@ public:
     static QString getPlaceInfoFromRecord(QSqlRecord record);
     static QString getSourceInfoFromRecord(QSqlRecord record);
     static HumanData getHumanDataFromRecord(QSqlRecord record);
+
+
+    void patchDatabase();
 
 private:
     QSqlDatabase db;

@@ -1,5 +1,7 @@
 #include <QMessageBox>
 
+#include <QQuickItem>
+
 #include "placeeditdialog.h"
 #include "ui_placeeditdialog.h"
 
@@ -32,7 +34,17 @@ PlaceEditDialog::PlaceEditDialog(HumansDatabase *humansDatabase, QString placeUu
     }
     pUid=placeUuid;
     placeData=db->getPlace(pUid);
-    fillPlaceData();
+    fillPlaceData();    
+    ui->labelMap->setVisible(false);//labelMap нужно для того, чтобы оставить пустое место в gridLayout
+    mapView = new QQuickView();
+    mapView->setResizeMode(QQuickView::SizeRootObjectToView);//Эта штука помогает ресайзить маркеры. ВНЕЗАПНО!!!Почему - не знаю.
+    mapContainer = QWidget::createWindowContainer(mapView, this);
+    mapContainer->setFocusPolicy(Qt::TabFocus);
+    mapView->setSource(QUrl("qrc:/setupmap.qml"));
+    ui->gridLayout->addWidget(mapContainer,4,1);
+    mapContainer->setVisible(false);
+    mapContainer->setMinimumHeight(450);
+    connect(mapView->rootObject(), SIGNAL(clickSignal(qreal,qreal)),this, SLOT(getCoordinates(qreal,qreal)));
 }
 
 PlaceEditDialog::~PlaceEditDialog()
@@ -100,8 +112,10 @@ void PlaceEditDialog::fillPlaceData()
     ui->lineEditName->setText(placeData.name);
     //ui->comboBoxType->setCurrentText(placeData.type);
     ui->comboBoxType->setEditText(placeData.type);
-    ui->textEditAnotherNames->setText(placeData.anotherNames.join("\n"));
-    ui->lineEditCoordinates->setText(placeData.coordinates);
+    ui->textEditAnotherNames->setText(placeData.anotherNames.join("\n"));    
+    ui->lineEditLatitude->setText(placeData.latitude);
+    ui->lineEditLongitude->setText(placeData.longitude);
+    ui->lineEditCoordAccuracy->setText(placeData.coordAccuracy);
     ui->textEditNote->setText(placeData.note);
 }
 
@@ -115,10 +129,19 @@ QStringList PlaceEditDialog::collectPlaceData()
     }
     placeData.name=ui->lineEditName->text();
     placeData.type=ui->comboBoxType->currentText();
-    placeData.anotherNames=ui->textEditAnotherNames->toPlainText().split("\n");
-    placeData.coordinates=ui->lineEditCoordinates->text();
+    placeData.anotherNames=ui->textEditAnotherNames->toPlainText().split("\n");    
+    //Проверку координат сделать бы тоже хорошо. Но пока не будем.
+    placeData.latitude=ui->lineEditLatitude->text();
+    placeData.longitude=ui->lineEditLongitude->text();
+    placeData.coordAccuracy=ui->lineEditCoordAccuracy->text();
     placeData.note=ui->textEditNote->toPlainText();
     return error;
+}
+
+void PlaceEditDialog::getCoordinates(qreal lat, qreal lon)
+{
+    ui->lineEditLatitude->setText(QString::number(lat));
+    ui->lineEditLongitude->setText(QString::number(lon));
 }
 
 void PlaceEditDialog::on_pushButtonUnionPlaces_clicked()
@@ -159,4 +182,24 @@ void PlaceEditDialog::on_pushButtonRecordSearch_clicked()
 {
     RecordSearchDialog dlg(db,"",placeData.uuid);
     dlg.exec();
+}
+
+void PlaceEditDialog::on_toolButtonShowMap_clicked()
+{
+    //включить/выключить карту
+    mapContainer->setVisible(mapContainer->isHidden());
+    //запись координат на карту из полей ввода
+    if(mapContainer->isVisible())
+    {
+        QString latitude=ui->lineEditLatitude->text();
+        QString longitude=ui->lineEditLongitude->text();
+        QMetaObject::invokeMethod(mapView->rootObject(), "setCenter",
+                              Q_ARG(QVariant,latitude)
+                              ,Q_ARG(QVariant,longitude)
+                              );
+        QMetaObject::invokeMethod(mapView->rootObject(), "setMarkerCoords",
+                              Q_ARG(QVariant,latitude)
+                              ,Q_ARG(QVariant,longitude)
+                              );
+    }
 }

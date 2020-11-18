@@ -1176,7 +1176,8 @@ void MainWindow::on_action_triggered()
 
 void MainWindow::on_pushButtonMap_clicked()
 {
-    MapDialog dlg;
+    MapDialog dlg(&db);
+    //хотя, как ты понимаешь, мы можем использовать бд по умолчанию и вообще ничего не передавать..ну да ладно.
     //Тут бы надо бы передать список объектов откуда-нибудь. Напишем спец.функцию.
     dlg.exec();
 }

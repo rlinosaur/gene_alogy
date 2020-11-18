@@ -18,33 +18,71 @@
     <layout class="QVBoxLayout" name="verticalLayout">
      <item>
       <layout class="QGridLayout" name="gridLayout">
-       <item row="3" column="1">
-        <widget class="QLineEdit" name="lineEditCoordinates"/>
-       </item>
-       <item row="4" column="0">
-        <widget class="QLabel" name="label_4">
-         <property name="text">
-          <string>Комментарий:</string>
-         </property>
-        </widget>
-       </item>
-       <item row="3" column="0">
-        <widget class="QLabel" name="label_3">
-         <property name="text">
-          <string>Координаты:</string>
-         </property>
-        </widget>
-       </item>
-       <item row="4" column="1">
-        <widget class="QTextEdit" name="textEditNote"/>
-       </item>
-       <item row="0" column="1">
-        <widget class="QLineEdit" name="lineEditName"/>
-       </item>
        <item row="0" column="0">
         <widget class="QLabel" name="label">
          <property name="text">
           <string>Название:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="1">
+        <widget class="QLineEdit" name="lineEditName"/>
+       </item>
+       <item row="3" column="1">
+        <layout class="QHBoxLayout" name="horizontalLayoutCoords">
+         <item>
+          <widget class="QLabel" name="labelLatitude">
+           <property name="text">
+            <string>Широта:</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLineEdit" name="lineEditLatitude"/>
+         </item>
+         <item>
+          <widget class="QLabel" name="labelLongitude">
+           <property name="text">
+            <string>Долгота:</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLineEdit" name="lineEditLongitude"/>
+         </item>
+         <item>
+          <widget class="QToolButton" name="toolButtonShowMap">
+           <property name="text">
+            <string>...</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="labelCoordAccuracy">
+           <property name="text">
+            <string>Точность, м:</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLineEdit" name="lineEditCoordAccuracy"/>
+         </item>
+        </layout>
+       </item>
+       <item row="1" column="0">
+        <widget class="QLabel" name="label_5">
+         <property name="text">
+          <string>Тип:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="5" column="1">
+        <widget class="QTextEdit" name="textEditNote"/>
+       </item>
+       <item row="5" column="0">
+        <widget class="QLabel" name="label_4">
+         <property name="text">
+          <string>Комментарий:</string>
          </property>
         </widget>
        </item>
@@ -57,6 +95,13 @@
        </item>
        <item row="2" column="1">
         <widget class="QTextEdit" name="textEditAnotherNames"/>
+       </item>
+       <item row="3" column="0">
+        <widget class="QLabel" name="label_3">
+         <property name="text">
+          <string>Координаты:</string>
+         </property>
+        </widget>
        </item>
        <item row="1" column="1">
         <widget class="QComboBox" name="comboBoxType">
@@ -125,10 +170,10 @@
          </item>
         </widget>
        </item>
-       <item row="1" column="0">
-        <widget class="QLabel" name="label_5">
+       <item row="4" column="0">
+        <widget class="QLabel" name="labelMap">
          <property name="text">
-          <string>Тип:</string>
+          <string>Карта:</string>
          </property>
         </widget>
        </item>
@@ -194,7 +239,6 @@
   <tabstop>lineEditName</tabstop>
   <tabstop>comboBoxType</tabstop>
   <tabstop>textEditAnotherNames</tabstop>
-  <tabstop>lineEditCoordinates</tabstop>
   <tabstop>textEditNote</tabstop>
   <tabstop>pushButtonOk</tabstop>
   <tabstop>pushButtonCancel</tabstop>

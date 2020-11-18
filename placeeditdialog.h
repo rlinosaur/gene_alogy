@@ -2,6 +2,7 @@
 #define PLACEEDITDIALOG_H
 
 #include <QDialog>
+#include <QQuickView>
 
 #include "humansdatabase.h"
 
@@ -31,6 +32,10 @@ private slots:
 
     void on_pushButtonRecordSearch_clicked();
 
+    void on_toolButtonShowMap_clicked();
+
+    void getCoordinates(qreal lat, qreal lon);
+
 private:
     Ui::PlaceEditDialog *ui;
     HumansDatabase *db;
@@ -40,6 +45,10 @@ private:
 
     void fillPlaceData();
     QStringList collectPlaceData();
+
+    //Для карты.
+    QQuickView *mapView;
+    QWidget *mapContainer;
 };
 
 #endif // PLACEEDITDIALOG_H
