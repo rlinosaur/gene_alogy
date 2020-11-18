@@ -24,6 +24,23 @@
    </property>
    <layout class="QHBoxLayout" name="horizontalLayout">
     <item>
+     <widget class="QLabel" name="labelCoords">
+      <property name="text">
+       <string>Координаты:</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QLineEdit" name="lineEditCoordinates"/>
+    </item>
+    <item>
+     <widget class="QPushButton" name="pushButtonCopyCoordinates">
+      <property name="text">
+       <string>Копировать</string>
+      </property>
+     </widget>
+    </item>
+    <item>
      <spacer name="horizontalSpacer">
       <property name="orientation">
        <enum>Qt::Horizontal</enum>

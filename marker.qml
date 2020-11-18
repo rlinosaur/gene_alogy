@@ -10,7 +10,9 @@ MapQuickItem
 {
     id: marker
     objectName: "placeMark"
+    property string uuid
     property string name
+    property string anNames
     property bool visibility:true
     visible: visibility
     autoFadeIn:false;    
@@ -41,7 +43,7 @@ MapQuickItem
     MouseArea {
         id: marea
         anchors.fill: parent    
-        onClicked: map.markerClick("Clicked!! aaa!!!")
+        onClicked: map.placeClick(uuid)//Осталось только принять! Кстати...вот и усё!
         hoverEnabled: true
     }
 
@@ -53,7 +55,7 @@ MapQuickItem
                 contentItem: Text{
                             font.family: "tahoma"
                             font.pixelSize: 24
-                            text: name+" Just a text"
+                            text: name+" "+uuid
                                 }
                        background: Rectangle {
                            border.color:image.color;

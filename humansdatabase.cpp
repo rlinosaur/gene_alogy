@@ -781,23 +781,35 @@ PlaceData HumansDatabase::getPlace(QString uuid)
     q.exec();
     if(!q.first())
     {
-        //mess("Get place error: "+q.lastError().databaseText()+",driver:"+q.lastError().driverText());
+        mess("Get place error: "+q.lastError().databaseText()+",driver:"+q.lastError().driverText());
         //Потому что места может и не быть, например. Так-то.
         return placeData;
     }
-    QSqlRecord rec=q.record();
 
-    placeData.uuid=rec.value(rec.indexOf("id")).toString();
-    placeData.name=rec.value(rec.indexOf("name")).toString();
-    placeData.type=rec.value(rec.indexOf("type")).toString();
-    placeData.anotherNames=rec.value(rec.indexOf("anothernames")).toString().split(";");
-    if(placeData.anotherNames.count()==1 && placeData.anotherNames[0].isEmpty())placeData.anotherNames.clear();    
-    placeData.latitude=rec.value(rec.indexOf("lat")).toString();
-    placeData.longitude=rec.value(rec.indexOf("lon")).toString();
-    placeData.coordAccuracy=rec.value(rec.indexOf("coordacc")).toString();
-    placeData.note=rec.value(rec.indexOf("note")).toString();
-    placeData.owner=rec.value(rec.indexOf("owner")).toString();
-    return placeData;
+    QSqlRecord rec=q.record();
+    return getPlaceDataFromRecord(rec);
+}
+
+QList<PlaceData> HumansDatabase::getPlaces()
+{
+
+    QList<PlaceData> list;
+    if(!this->isOpen())return list;
+    QSqlQuery q(db);
+    q.prepare("SELECT id,name,type,anothernames,lat,lon,coordacc FROM places;");
+    bool res=q.exec();
+    if(!res)
+    {
+        mess("getPlaces error: "+q.lastError().databaseText()+",driver:"+q.lastError().driverText());
+        return list;
+    }
+    if(!q.first()) return list;
+    do
+    {
+        QSqlRecord rec=q.record();
+        list.append(getPlaceDataFromRecord(rec));
+    }while(q.next());
+    return list;
 }
 
 bool HumansDatabase::deletePlace(QString uuid)
@@ -1789,6 +1801,22 @@ HumanData HumansDatabase::getHumanDataFromRecord(QSqlRecord record)
         humanData.owner=HumansDatabase::getUuidFromString(owner);
 
     return humanData;
+}
+
+PlaceData HumansDatabase::getPlaceDataFromRecord(const QSqlRecord &record)
+{
+    PlaceData placeData;
+    placeData.uuid=record.value(record.indexOf("id")).toString();
+    placeData.name=record.value(record.indexOf("name")).toString();
+    placeData.type=record.value(record.indexOf("type")).toString();
+    placeData.anotherNames=record.value(record.indexOf("anothernames")).toString().split(";");
+    if(placeData.anotherNames.count()==1 && placeData.anotherNames[0].isEmpty())placeData.anotherNames.clear();
+    placeData.latitude=record.value(record.indexOf("lat")).toString();
+    placeData.longitude=record.value(record.indexOf("lon")).toString();
+    placeData.coordAccuracy=record.value(record.indexOf("coordacc")).toString();
+    placeData.note=record.value(record.indexOf("note")).toString();
+    placeData.owner=record.value(record.indexOf("owner")).toString();
+    return placeData;
 }
 
 void HumansDatabase::patchDatabase()

@@ -64,6 +64,7 @@ public:
     bool addPlace(PlaceData place);
     bool editPlace(PlaceData place);
     PlaceData getPlace(QString uuid);
+    QList<PlaceData> getPlaces();
     bool deletePlace(QString uuid);
     bool unitePlaces(QString fromId, QString toId);
     bool addSource(SourceData source);
@@ -116,6 +117,8 @@ public:
     static QString getPlaceInfoFromRecord(QSqlRecord record);
     static QString getSourceInfoFromRecord(QSqlRecord record);
     static HumanData getHumanDataFromRecord(QSqlRecord record);
+
+    static PlaceData getPlaceDataFromRecord(const QSqlRecord &record);
 
 
     void patchDatabase();
