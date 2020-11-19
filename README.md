@@ -1,9 +1,9 @@
 # gene_alogy
 Downloads
 <br>
-You could download the installation wizard from Bintray here:
+You could download the installation wizard from Bintray here (old and non-working link for now):
 <br>
-https://bintray.com/rlinosaur/Gene_Alogy
+ // Old non-working link: https://bintray.com/rlinosaur/Gene_Alogy
 <br>
 About.
 <br>
