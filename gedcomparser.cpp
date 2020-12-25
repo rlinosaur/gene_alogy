@@ -1,4 +1,5 @@
 #include <QFile>
+#include <QRegularExpression>
 #include <QRegExp>
 #include <QTextCodec>
 #include <QTextStream>
@@ -11,7 +12,8 @@
 
 //#define MAXGEDCOMLEVEL 10
 
-QRegExp regexpNotNumbers("[^0-9]");
+//QRegExp regexpNotNumbers("[^0-9]");
+QRegularExpression regexpNotNumbers("[^0-9]");
 
 using namespace gedcom;
 
@@ -29,7 +31,7 @@ void GedcomParser::clear()
 
 unsigned int GedcomParser::getIndiNumber(QString hm)
 {
-   return hm.remove(QRegExp("[^0-9]")).toInt();
+   return hm.remove(QRegularExpression("[^0-9]")).toInt();
 }
 
 //Я думаю, что парсер надо бы сделать в отдельной функции.

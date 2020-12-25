@@ -1,19 +1,18 @@
 #include <QQmlApplicationEngine>
 #include <QClipboard>
+#include <QDebug>
 
 #include "mapdialog.h"
 #include "ui_mapdialog.h"
 
 #include "placeeditdialog.h"
 
-MapDialog::MapDialog(HumansDatabase *humansDatabase, QWidget *parent) :
+MapDialog::MapDialog(const HumansDatabase &humansDatabase, QWidget *parent) :
     QDialog(parent),
-    ui(new Ui::MapDialog)
+    ui(new Ui::MapDialog),
+    db(humansDatabase)
 {
     ui->setupUi(this);
-
-    db = humansDatabase;
-
     QQmlApplicationEngine engine;
     engine.load(QUrl(QStringLiteral("qrc:/map.qml")));
 
@@ -62,7 +61,7 @@ MapDialog::MapDialog(HumansDatabase *humansDatabase, QWidget *parent) :
     }
     */
     //Fill map objects here! a-ha-ha-ha-ha!
-    QList<PlaceData> places = humansDatabase->getPlaces();
+    QList<PlaceData> places = humansDatabase.getPlaces();
     addPlacesToMap(places);
 }
 
@@ -79,13 +78,14 @@ void MapDialog::on_pushButtonClose_clicked()
 void MapDialog::placeClick(QString uuid)
 {
     qDebug()<<"Device with uuid "<<uuid<<" click";
-    PlaceEditDialog dlg(db,uuid);
+    MapDialog dlg(db);//КОСТЫЛЬ ДЛЯ ТЕСТА!
+    //PlaceEditDialog dlg(&db,uuid);
     dlg.exec();
 
     //PlaceData place=db->getPlace(uuid);
     //changePlaceOntoMap(place);
     //PlaceData place=db->getPlace(uuid);
-    changePlaceOntoMap(db->getPlace(uuid));
+    changePlaceOntoMap(db.getPlace(uuid));
 
 }
 

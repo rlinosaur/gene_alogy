@@ -1,6 +1,12 @@
 #include "mainwindow.h"
 #include <QApplication>
+
+#if QT_VERSION >= 0x050000
+    // Qt5 code
+#else
+    // Qt4 code
 #include <QTextCodec>
+#endif
 
 int main(int argc, char *argv[])
 {

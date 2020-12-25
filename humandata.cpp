@@ -1,5 +1,9 @@
 #include <QDebug>
 
+//#include <QRegExp>
+
+#include <QRegularExpression>
+
 #include <math.h>
 
 #include "humandata.h"
@@ -10,7 +14,7 @@
 HumanData::HumanData(bool clearUuid)
 {    
     if(clearUuid)
-        uuid=NULL;
+        uuid=QUuid();
     else
         uuid=QUuid::createUuid();
     sex=humanSexUndefined;
@@ -18,9 +22,9 @@ HumanData::HumanData(bool clearUuid)
     motherListCount=-1;
     birthYear=-1;
     deathYear=-1;
-    father=NULL;
-    mother=NULL;
-    owner=NULL;
+    father=QUuid();
+    mother=QUuid();
+    owner=QUuid();
 
     created=0;
     changed=0;
@@ -47,9 +51,9 @@ void HumanData::clear()
 
     uuid=QUuid::createUuid();
 
-    father=NULL;
-    mother=NULL;
-    owner=NULL;
+    father=QUuid();
+    mother=QUuid();
+    owner=QUuid();
 
     deathDate.clear();
     deathAge.clear();
@@ -68,7 +72,7 @@ void HumanData::clear()
 
 void HumanData::clearUUID()
 {
-    uuid=NULL;
+    uuid=QUuid();
 }
 
 
@@ -80,17 +84,34 @@ QString HumanData::getHumanInfo()
         humanInfo.append(" ("+marName+")");
     humanInfo.append(" "+givenName);
     humanInfo.append(" "+patronymicName);
-    QRegExp regExpYear("[0-9]{4}");
+    QRegularExpression regExpYear("[0-9]{4}");
+    //QRegExp regExpYear("[0-9]{4}");
+    QRegularExpressionMatch match=regExpYear.match(deathDate);
     QString deathyear;    
+    if(match.hasMatch())
+        deathyear=match.captured(0);
+    else
+        deathyear.clear();
+    /*
     if(deathDate.contains(regExpYear))
         deathyear=regExpYear.cap(0);
     else
         deathyear.clear();
+        */
+
     QString birthyear;
+    match=regExpYear.match(birthDate);
+
+    if(match.hasMatch())
+        birthyear=match.captured(0);
+    else
+        birthyear.clear();
+    /*
     if(birthDate.contains(regExpYear))
         birthyear=regExpYear.cap(0);
     else
         birthyear.clear();
+        */
     if(!birthyear.isEmpty() || !deathyear.isEmpty())
     {
        humanInfo.append(" "+birthyear+"-"+deathyear);
@@ -129,6 +150,8 @@ bool HumanData::sortHumanLevelLessThan(const HumanData &h1, const HumanData &h2)
 
 bool HumanData::sortHumanBirthYearLessThan(const HumanData &h1, const HumanData &h2)
 {
+    //qDebug()<<"sortsortsort!";
+    /*
     QRegExp regExpYear("[0-9]{4}");
     int birth1=0;
     if(h1.birthDate.contains(regExpYear))
@@ -138,6 +161,19 @@ bool HumanData::sortHumanBirthYearLessThan(const HumanData &h1, const HumanData 
     int birth2=0;
     if(h2.birthDate.contains(regExpYear))
         birth1=regExpYear.cap(0).toInt();
+    else
+        birth2=0;
+        */
+    QRegularExpression regExpYear("[0-9]{4}");
+    QRegularExpressionMatch match;
+    int birth1=0;
+    if(h1.birthDate.contains(regExpYear,&match))
+        birth1=match.captured(0).toInt();
+    else
+        birth1=0;
+    int birth2=0;
+    if(h2.birthDate.contains(regExpYear,&match))
+        birth1=match.captured(0).toInt();
     else
         birth2=0;
     return birth1<birth2;
@@ -164,11 +200,11 @@ void FamilyData::clear()
     uuid=QUuid::createUuid();
     children.clear();
     partners.clear();
-    husband=NULL;
-    wife=NULL;
+    husband=QUuid();
+    wife=QUuid();
     marriageDate.clear();
     marriagePlace.clear();
-    owner=NULL;
+    owner=QUuid();
     note.clear();
     recordId.clear();
     husbandListCount=-1;

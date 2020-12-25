@@ -26,7 +26,7 @@ class HumansDatabase : public QObject
 public:
     explicit HumansDatabase(QObject *parent = 0);
     void init(QString fileName=DEFAULT_DATABASE_NAME);
-    bool isOpen();
+    bool isOpen() const;
     bool isConnected();//Для MySQL актуально, в случае потери соединения, но и тут пригодится.
     bool close();
     bool deleteDatabase(QString fileName);
@@ -63,8 +63,8 @@ public:
     bool deleteRecord(QString uuid);
     bool addPlace(PlaceData place);
     bool editPlace(PlaceData place);
-    PlaceData getPlace(QString uuid);
-    QList<PlaceData> getPlaces();
+    PlaceData getPlace(QString uuid) const;
+    QList<PlaceData> getPlaces() const;
     bool deletePlace(QString uuid);
     bool unitePlaces(QString fromId, QString toId);
     bool addSource(SourceData source);
@@ -126,9 +126,9 @@ public:
 private:
     QSqlDatabase db;
     QString fName;
-    void mess(QString message);
+    void mess(QString message) const;
 signals:
-    void sendMessage(QString message, MessageType messtype);
+    void sendMessage(QString message, MessageType messtype) const;
 public slots:
 };
 

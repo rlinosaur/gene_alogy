@@ -2,6 +2,8 @@
 #include <QMouseEvent>
 #include <QDebug>
 
+#include <QRandomGenerator>
+
 #include "humannode.h"
 
 #include <math.h>
@@ -80,10 +82,20 @@ void VisualizeWidget::visualizeTree(QList<HumanData> *list)
         HumanNode *node = new HumanNode();
         //node->setColor(QColor("green"));
         //node->setPaintBrush(Qt::green);
-        int colorC=(RAND_MAX/255)/(level+1)*maxlevel;
-        int red=qrand()/colorC;
-        int green=qrand()/colorC;
-        int blue=qrand()/colorC;
+
+        QRandomGenerator gen;
+        gen.generate();
+
+
+        //не помню, что за цвета тут предполагались..Так что...Сделаем пока как-нибудь.
+        //depracated
+//        int colorC=(RAND_MAX/255)/(level+1)*maxlevel;
+//        int red=qrand()/colorC;
+//        int green=qrand()/colorC;
+//        int blue=qrand()/colorC;
+        int red=QRandomGenerator::global()->bounded(256);
+        int green=QRandomGenerator::global()->bounded(256);
+        int blue=QRandomGenerator::global()->bounded(256);
         node->setBrushColor(QColor(red,green,blue));
         node->setPenColor(QColor(255-red,255-green,255-blue));
         node->setRect(0,0,(defWidth+defMarg),defHeight);
@@ -163,7 +175,7 @@ void VisualizeWidget::mouseDoubleClickEvent(QMouseEvent *event)
 #ifndef QT_NO_WHEELEVENT
 void VisualizeWidget::wheelEvent(QWheelEvent *event)
 {
-    scaleView(pow((double)2, -event->delta() / 240.0));
+    scaleView(pow((double)2, -event-> pixelDelta().x() / 240.0));
     //shear(1.5,1.2);//сжатие, не надо.
     translate(1500,1500);
 }

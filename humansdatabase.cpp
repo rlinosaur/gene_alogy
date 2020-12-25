@@ -7,10 +7,12 @@
 #include <QSqlRecord>
 #include <QStringList>
 #include <QSqlDatabase>
+#include <QRegularExpression>
 #include "humansdatabase.h"
 
+//QRegularExpression regExpYear("[0-9]{4}");
 QRegExp regExpYear("[0-9]{4}");
-//QRegExp regNonHex("[^0-9A-F]");
+QRegExp regNonHex("[^0-9A-F]");
 
 HumansDatabase::HumansDatabase(QObject *parent) : QObject(parent)
 {
@@ -42,7 +44,7 @@ void HumansDatabase::init(QString fileName)
     }
 }
 
-bool HumansDatabase::isOpen()
+bool HumansDatabase::isOpen() const
 {
     return db.isOpen();//Зачем повторял? Не знаю.
 }
@@ -594,13 +596,14 @@ FamilyData HumansDatabase::getMarriageBySpouses(QString spouse1, QString spouse2
     QSqlRecord rec=q.record();
 
     familyData.uuid=rec.value(rec.indexOf("id")).toString();
+    //familyData.uuid.fromString(rec.value(rec.indexOf("id")).toString());
 
     QString husband=rec.value(rec.indexOf("husband")).toString();
-    if(husband.isEmpty())familyData.husband=NULL;
+    if(husband.isEmpty())familyData.husband=QUuid();
     else
         familyData.husband=HumansDatabase::getUuidFromString(husband);
     QString wife=rec.value(rec.indexOf("wife")).toString();
-    if(wife.isEmpty())familyData.wife=NULL;
+    if(wife.isEmpty())familyData.wife=QUuid();
     else
         familyData.wife=HumansDatabase::getUuidFromString(wife);
 
@@ -687,8 +690,7 @@ RecordData HumansDatabase::getRecord(QString uuid)
         mess("Get record error: "+q.lastError().databaseText()+",driver:"+q.lastError().driverText());        
         return recordData;
     }
-    QSqlRecord rec=q.record();
-
+    QSqlRecord rec=q.record();    
     recordData.uuid=rec.value(rec.indexOf("id")).toString();
     recordData.record=rec.value(rec.indexOf("record")).toString();
     recordData.date=rec.value(rec.indexOf("date")).toString();
@@ -766,7 +768,7 @@ bool HumansDatabase::editPlace(PlaceData place)
     return res;
 }
 
-PlaceData HumansDatabase::getPlace(QString uuid)
+PlaceData HumansDatabase::getPlace(QString uuid) const
 {
     PlaceData placeData;
     if(!this->isOpen() || uuid.isEmpty())
@@ -790,7 +792,7 @@ PlaceData HumansDatabase::getPlace(QString uuid)
     return getPlaceDataFromRecord(rec);
 }
 
-QList<PlaceData> HumansDatabase::getPlaces()
+QList<PlaceData> HumansDatabase::getPlaces() const
 {
 
     QList<PlaceData> list;
@@ -1535,7 +1537,7 @@ QVariant HumansDatabase::getPlaceSearchQueryCount(QString searchString, unsigned
     return q.record().value(0).toInt();
 }
 
-void HumansDatabase::mess(QString message)
+void HumansDatabase::mess(QString message) const
 {
     qDebug()<<message;
     Q_EMIT sendMessage(message,messageText);
@@ -1770,11 +1772,11 @@ HumanData HumansDatabase::getHumanDataFromRecord(QSqlRecord record)
     else if (sex==1) humanData.sex=humanSexMale;
     else humanData.sex=humanSexUndefined;
     QString father=record.value(record.indexOf("father")).toString();
-    if(father.isEmpty())humanData.father=NULL;
+    if(father.isEmpty())humanData.father=QUuid();
     else
         humanData.father=HumansDatabase::getUuidFromString(father);
     QString mother=record.value(record.indexOf("mother")).toString();
-    if(mother.isEmpty())humanData.mother=NULL;
+    if(mother.isEmpty())humanData.mother=QUuid();
     else
         humanData.mother=HumansDatabase::getUuidFromString(mother);
     humanData.birthDate=record.value(record.indexOf("birthdate")).toString();
@@ -1796,7 +1798,7 @@ HumanData HumansDatabase::getHumanDataFromRecord(QSqlRecord record)
     humanData.changed=record.value(record.indexOf("changed")).toInt();
 
     QString owner=record.value(record.indexOf("owner")).toString();
-    if(owner.isEmpty())humanData.owner=NULL;
+    if(owner.isEmpty())humanData.owner=QUuid();
     else
         humanData.owner=HumansDatabase::getUuidFromString(owner);
 

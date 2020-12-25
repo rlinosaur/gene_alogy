@@ -838,7 +838,7 @@ void MainWindow::on_pushButtonGedcomExport_clicked()
         QMessageBox::warning(this,"Внимание!","Ошибка открытия файла "+gedFile+" для записи.");
         return;
     }
-    QTextStream outStream(&f);
+    QTextStream outStream(&f);    
     outStream.setCodec(QTextCodec::codecForName("UTF-8"));
 
     outStream<<"0 HEAD\n1 GEDC\n2 VERS 5.5\n2 FORM LINEAGE-LINKED\n1 CHAR UTF-8\n1 LANG Russian\n1 SOUR GENE_ALOGY\n2 NAME rLin's genealogy tool\n2 VERS 1.0\n2 _RTLSAVE RTL\n2 CORP None\n";
@@ -1002,7 +1002,7 @@ void MainWindow::on_pushButtonGedcomExport_clicked()
                 outStream<<"\n1 FAMC @F"+QString::number(exportList[i].children[j])+"@";
         }
         outStream<<"\n1 RIN MH:I"<<QString::number(i);
-        outStream<<"\n1 _UID "<<exportList[i].uuid.toString().remove(QRegExp("[^0-9a-fA-F]"));
+        outStream<<"\n1 _UID "<<exportList[i].uuid.toString().remove(QRegularExpression("[^0-9a-fA-F]"));
     }
     //Добавляем семьи (новинка, кстати).
     //qDebug()<<"Families:";
@@ -1021,7 +1021,7 @@ void MainWindow::on_pushButtonGedcomExport_clicked()
             outStream<<"\n1 CHIL @"<<QString::number(familyList[i].children[j])<<"@";
         }
         outStream<<"\n1 RIN MH:F"<<QString::number(i);
-        outStream<<"\n1 _UID "<<familyList[i].uuid.toString().remove(QRegExp("[^0-9a-fA-F]"));
+        outStream<<"\n1 _UID "<<familyList[i].uuid.toString().remove(QRegularExpression("[^0-9a-fA-F]"));
     }
 
     outStream<<"\n";
@@ -1176,7 +1176,7 @@ void MainWindow::on_action_triggered()
 
 void MainWindow::on_pushButtonMap_clicked()
 {
-    MapDialog dlg(&db);
+    MapDialog dlg(db);
     //хотя, как ты понимаешь, мы можем использовать бд по умолчанию и вообще ничего не передавать..ну да ладно.
     //Тут бы надо бы передать список объектов откуда-нибудь. Напишем спец.функцию.
     dlg.exec();

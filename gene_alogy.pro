@@ -5,8 +5,8 @@
 #-------------------------------------------------
 
 QT       += core gui sql qml quick quickwidgets
-
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
+greaterThan(QT_MAJOR_VERSION, 5) QT += core5compat
 
 TARGET = gene_alogy
 TEMPLATE = app
