@@ -17,7 +17,7 @@ class PlaceSearchDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit PlaceSearchDialog(HumansDatabase *humansDatabase,QWidget *parent = 0);
+    explicit PlaceSearchDialog(HumansDatabase &humansDatabase, QWidget *parent = 0);
     ~PlaceSearchDialog();
     QString getPlaceUuid(){return placeUuid;}
     QString getPlaceInfo(){return placeInfo;}
@@ -41,7 +41,7 @@ private:
     QSqlQueryModel model;
     QString placeUuid;
     QString placeInfo;
-    HumansDatabase *db;
+    HumansDatabase &db;
     QModelIndex currentSelectionIndex;
 };
 

@@ -8,11 +8,12 @@
 #include "placesearchdialog.h"
 #include "recordsearchdialog.h"
 
-PlaceEditDialog::PlaceEditDialog(HumansDatabase *humansDatabase, QString placeUuid, QWidget *parent) :
+PlaceEditDialog::PlaceEditDialog(HumansDatabase &humansDatabase, QString placeUuid, QWidget *parent) :
     QDialog(parent),
-    ui(new Ui::PlaceEditDialog)
+    ui(new Ui::PlaceEditDialog),
+    db(humansDatabase)
 {
-    if(!humansDatabase->isOpen())
+    if(!db.isOpen())
     {
         QMessageBox::warning(this,"Внимание","База не открыта!");
        reject();
@@ -20,7 +21,7 @@ PlaceEditDialog::PlaceEditDialog(HumansDatabase *humansDatabase, QString placeUu
     }
     ui->setupUi(this);
 
-    db=humansDatabase;
+    //db=humansDatabase;
     if(!placeUuid.isEmpty())
     {
         setWindowTitle("Редактирование места");
@@ -33,7 +34,7 @@ PlaceEditDialog::PlaceEditDialog(HumansDatabase *humansDatabase, QString placeUu
 
     }
     pUid=placeUuid;
-    placeData=db->getPlace(pUid);
+    placeData=db.getPlace(pUid);
     fillPlaceData();    
     ui->labelMap->setVisible(false);//labelMap нужно для того, чтобы оставить пустое место в gridLayout
     mapView = new QQuickView();
@@ -73,7 +74,7 @@ void PlaceEditDialog::on_pushButtonDelete_clicked()
     switch (ret)
     {
        case QMessageBox::Ok:
-           db->deletePlace(pUid);
+           db.deletePlace(pUid);
            accept();
            break;
        case QMessageBox::Cancel:
@@ -96,13 +97,13 @@ void PlaceEditDialog::on_pushButtonOk_clicked()
     }
     if(pUid.isEmpty())
     {
-        bool res=db->addPlace(placeData);
+        bool res=db.addPlace(placeData);
         if(res)
             pUid=placeData.uuid;
     }
     else
     {
-        db->editPlace(placeData);//должно уже работать, кстати.
+        db.editPlace(placeData);//должно уже работать, кстати.
     }
     accept();
 }
@@ -165,7 +166,7 @@ void PlaceEditDialog::on_pushButtonUnionPlaces_clicked()
     switch (ret)
     {
        case QMessageBox::Ok:
-            db->unitePlaces(pUid,dlg.getPlaceUuid());
+            db.unitePlaces(pUid,dlg.getPlaceUuid());
            //db->uniteHumans(hUid,dlg.getHumanUuid());
            reject();
            break;

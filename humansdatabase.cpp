@@ -728,7 +728,7 @@ bool HumansDatabase::deleteRecord(QString uuid)
     return res;
 }
 
-bool HumansDatabase::addPlace(PlaceData place)
+bool HumansDatabase::addPlace(PlaceData place) const
 {
     if(!this->isOpen())return false;
     QSqlQuery q(db);
@@ -748,7 +748,7 @@ bool HumansDatabase::addPlace(PlaceData place)
     return res;
 }
 
-bool HumansDatabase::editPlace(PlaceData place)
+bool HumansDatabase::editPlace(PlaceData place) const
 {
     if(!this->isOpen())return false;
     QSqlQuery q(db);

@@ -15,7 +15,7 @@ class MarriageEditDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit MarriageEditDialog(HumansDatabase *humansDatabase, QString familyUid="", QWidget *parent = 0);
+    explicit MarriageEditDialog(HumansDatabase &humansDatabase, QString familyUid="", QWidget *parent = 0);
     ~MarriageEditDialog();
 
     void addHusbandInfo(QString husbandId);
@@ -36,7 +36,7 @@ private slots:
 
 private:
     Ui::MarriageEditDialog *ui;
-    HumansDatabase *db;
+    HumansDatabase &db;
     QString fUid;
     FamilyData familyData;
     HumanData husbandData;

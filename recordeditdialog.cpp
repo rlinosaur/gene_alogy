@@ -12,9 +12,10 @@
 #include "geneoptions.h"
 
 
-RecordEditDialog::RecordEditDialog(HumansDatabase *humansDatabase, QString recordUuid, QWidget *parent) :
+RecordEditDialog::RecordEditDialog(HumansDatabase &humansDatabase, QString recordUuid, QWidget *parent) :
     QDialog(parent),
-    ui(new Ui::RecordEditDialog)
+    ui(new Ui::RecordEditDialog),
+    db(humansDatabase)
 {
     ui->setupUi(this);
     this->setWindowFlags(this->windowFlags() | Qt::WindowMaximizeButtonHint);
@@ -29,15 +30,15 @@ RecordEditDialog::RecordEditDialog(HumansDatabase *humansDatabase, QString recor
     ui->webViewRecord->setSizePolicy(QSizePolicy::QSizePolicy::Maximum,QSizePolicy::QSizePolicy::Maximum);
     ui->tabWidget->setMaximumWidth(350);
     ui->tabWidget->setMinimumWidth(350);
-    if(!humansDatabase->isOpen())
+    if(!humansDatabase.isOpen())
     {
         QMessageBox::warning(this,"Внимание","База не открыта!");
         reject();
         return;
     }
-    db=humansDatabase;
+    //db=humansDatabase;
     recUid=recordUuid;
-    recordData=db->getRecord(recUid);
+    recordData=db.getRecord(recUid);
     fillRecordData();
     if(!recordUuid.isEmpty())
     {
@@ -195,12 +196,12 @@ void RecordEditDialog::on_pushButtonOk_clicked()
     if(recUid.isEmpty())
     {
         qDebug()<<"Empty record uid "<<recordData.uuid;
-        db->addRecord(recordData);
+        db.addRecord(recordData);
     }
     else
     {
         qDebug()<<"Edit record uid "<<recordData.uuid;
-        db->editRecord(recordData);
+        db.editRecord(recordData);
     }
     accept();
 }
@@ -217,12 +218,12 @@ void RecordEditDialog::on_pushButtonSave_clicked()
     }
     if(recUid.isEmpty())
     {
-        db->addRecord(recordData);
+        db.addRecord(recordData);
         recUid=recordData.uuid;
     }
     else
     {
-        db->editRecord(recordData);
+        db.editRecord(recordData);
     }
 
     setWindowTitle("Редактирование записи");
@@ -236,10 +237,10 @@ void RecordEditDialog::fillRecordData()
     ui->lineEditDate->setText(recordData.date);
     //ui->comboBoxType->setCurrentText(recordData.type);
     ui->comboBoxType->setEditText(recordData.type);
-    SourceData source=db->getSource(recordData.sourceId);
+    SourceData source=db.getSource(recordData.sourceId);
     ui->lineEditSource->setText(source.name);
     ui->lineEditLocation->setText(recordData.location);
-    PlaceData place=db->getPlace(recordData.placeId);
+    PlaceData place=db.getPlace(recordData.placeId);
     ui->lineEditPlace->setText(place.type+" "+place.name);
     ui->lineEditPlace->setCursorPosition(0);
     ui->textEditNote->setText(recordData.note);
@@ -263,7 +264,7 @@ QStringList RecordEditDialog::collectRecordData()
 
 void RecordEditDialog::updateHumansData()
 {
-    humansData=db->getHumansOfRecordInfo(recordData.uuid);
+    humansData=db.getHumansOfRecordInfo(recordData.uuid);
     ui->listWidgetHumans->clear();
     for(int i=0;i<humansData.count();i++)
     {
@@ -273,7 +274,7 @@ void RecordEditDialog::updateHumansData()
 
 void RecordEditDialog::updatePlacesData()
 {
-    placesData=db->getPlacesOfRecordInfo(recordData.uuid);
+    placesData=db.getPlacesOfRecordInfo(recordData.uuid);
     ui->listWidgetPlaces->clear();
     for(int i=0;i<placesData.count();i++)
     {
@@ -283,7 +284,7 @@ void RecordEditDialog::updatePlacesData()
 
 void RecordEditDialog::updateRecordSourcesData()
 {  
-    sourcesData=db->getSourcesOfRecordInfo(recordData.uuid);   
+    sourcesData=db.getSourcesOfRecordInfo(recordData.uuid);
     ui->listWidgetSources->clear();
     for(int i=0;i<sourcesData.count();i++)
     {
@@ -293,7 +294,7 @@ void RecordEditDialog::updateRecordSourcesData()
 
 void RecordEditDialog::on_pushButtonSearchSource_clicked()
 {
-    SourceSearchDialog dlg(db);
+    SourceSearchDialog dlg(&db);
     if(dlg.exec()==QDialog::Rejected) return;
     recordData.sourceId=dlg.getSourceId();
     ui->lineEditSource->setText(dlg.getSourceInfo());
@@ -311,7 +312,7 @@ void RecordEditDialog::on_pushButtonNewHuman_clicked()
     QString hUuid=dlg.getHumanUuid();
     if(!hUuid.isEmpty())
     {
-        db->addHumanToRecord(recordData.uuid,hUuid);
+        db.addHumanToRecord(recordData.uuid,hUuid);
         updateHumansData();
     }
 }
@@ -329,7 +330,7 @@ void RecordEditDialog::on_pushButtonSearchHuman_clicked()
     QString hUuid=dlg.getHumanUuid();
     if(!hUuid.isEmpty())
     {
-        db->addHumanToRecord(recordData.uuid,hUuid);
+        db.addHumanToRecord(recordData.uuid,hUuid);
         updateHumansData();
     }
 }
@@ -350,7 +351,7 @@ void RecordEditDialog::listPlacesActivated(QModelIndex index)
 
 void RecordEditDialog::listSourcesActivated(QModelIndex index)
 {
-    RecordSourceEditDialog dlg(db,recordData.uuid,sourcesData[index.row()][0]);
+    RecordSourceEditDialog dlg(&db,recordData.uuid,sourcesData[index.row()][0]);
     dlg.exec();
     updateRecordSourcesData();
 }
@@ -363,7 +364,7 @@ void RecordEditDialog::on_pushButtonRemoveHuman_clicked()
         QMessageBox::warning(this,"Внимание","Не выбран человек!");
         return;
     }
-    db->deleteHumanFromRecord(recordData.uuid,humansData[index.row()][0]);
+    db.deleteHumanFromRecord(recordData.uuid,humansData[index.row()][0]);
     updateHumansData();
 }
 
@@ -379,7 +380,7 @@ void RecordEditDialog::on_pushButtonNewPlace_clicked()
     QString pUuid=dlg.getPlaceUuid();
     if(!pUuid.isEmpty())
     {
-        db->addPlaceToRecord(recordData.uuid,pUuid);
+        db.addPlaceToRecord(recordData.uuid,pUuid);
         updatePlacesData();
     }
 }
@@ -397,7 +398,7 @@ void RecordEditDialog::on_pushButtonSearchPlace_clicked()
     if(!pUuid.isEmpty())
     {
         //qDebug()<<"Before add";
-        db->addPlaceToRecord(recordData.uuid,pUuid);
+        db.addPlaceToRecord(recordData.uuid,pUuid);
         //qDebug()<<"After add";
         updatePlacesData();
     }
@@ -418,7 +419,7 @@ void RecordEditDialog::on_pushButtonRemovePlace_clicked()
             == QMessageBox::No) return;
 
 
-    db->deletePlaceFromRecord(recordData.uuid,placesData[index.row()][0]);
+    db.deletePlaceFromRecord(recordData.uuid,placesData[index.row()][0]);
     updatePlacesData();
 }
 
@@ -438,7 +439,7 @@ void RecordEditDialog::on_pushButtonDelete_clicked()
     switch (ret)
     {
        case QMessageBox::Ok:
-           db->deleteRecord(recUid);
+           db.deleteRecord(recUid);
            accept();
            break;
        case QMessageBox::Cancel:
@@ -480,7 +481,7 @@ void RecordEditDialog::on_pushButtonMinusFont_clicked()
 
 void RecordEditDialog::on_pushButtonNewRecordSource_clicked()
 {
-    RecordSourceEditDialog dlg(db,recordData.uuid);
+    RecordSourceEditDialog dlg(&db,recordData.uuid);
     dlg.exec();
     updateRecordSourcesData();
 }
@@ -498,6 +499,6 @@ void RecordEditDialog::on_pushButtonDeleteRecordSource_clicked()
             == QMessageBox::No) return;
 
 
-    db->deleteSourceFromRecord(sourcesData[index.row()][0]);
+    db.deleteSourceFromRecord(sourcesData[index.row()][0]);
     updateRecordSourcesData();
 }

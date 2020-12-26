@@ -8,11 +8,12 @@
 
 #include "placeeditdialog.h"
 
-PlaceSearchDialog::PlaceSearchDialog(HumansDatabase *humansDatabase, QWidget *parent) :
+PlaceSearchDialog::PlaceSearchDialog(HumansDatabase &humansDatabase, QWidget *parent) :
     QDialog(parent),
-    ui(new Ui::PlaceSearchDialog)
+    ui(new Ui::PlaceSearchDialog),
+    db(humansDatabase)
 {
-    if(!humansDatabase->isOpen())
+    if(!humansDatabase.isOpen())
     {
         QMessageBox::warning(this,"Внимание","База по-прежнему не открыта, а значит искать людей, увы, негде!");
         reject();
@@ -20,7 +21,7 @@ PlaceSearchDialog::PlaceSearchDialog(HumansDatabase *humansDatabase, QWidget *pa
     }
     ui->setupUi(this);
 
-    db=humansDatabase;
+    //db=humansDatabase;
     modelSort.setSourceModel(&model);
     ui->tableViewSearch->setModel(&modelSort);
     ui->tableViewSearch->setSortingEnabled(true);
@@ -39,10 +40,10 @@ PlaceSearchDialog::~PlaceSearchDialog()
 void PlaceSearchDialog::on_pushButtonSearch_clicked()
 {
     //if(!ui->lineEditSearch->text().isEmpty()) QApplication::clipboard()->setText(ui->lineEditSearch->text());
-    model.setQuery(HumansDatabase::getPlaceSearchQuery(ui->lineEditSearch->text()),db->getDb());
+    model.setQuery(HumansDatabase::getPlaceSearchQuery(ui->lineEditSearch->text()),db.getDb());
     ui->tableViewSearch->hideColumn(0);
     currentSelectionIndex=QModelIndex();    
-    ui->labelCount->setText("Найдено:"+db->getPlaceSearchQueryCount(ui->lineEditSearch->text(),COMMONSEARCHFLAG_COUNTQUERY).toString());
+    ui->labelCount->setText("Найдено:"+db.getPlaceSearchQueryCount(ui->lineEditSearch->text(),COMMONSEARCHFLAG_COUNTQUERY).toString());
 }
 
 void PlaceSearchDialog::tableSearchClickSlot(QModelIndex index)

@@ -7,7 +7,7 @@
 
 #include "placeeditdialog.h"
 
-MapDialog::MapDialog(const HumansDatabase &humansDatabase, QWidget *parent) :
+MapDialog::MapDialog(HumansDatabase &humansDatabase, QWidget *parent) :
     QDialog(parent),
     ui(new Ui::MapDialog),
     db(humansDatabase)
@@ -77,9 +77,8 @@ void MapDialog::on_pushButtonClose_clicked()
 
 void MapDialog::placeClick(QString uuid)
 {
-    qDebug()<<"Device with uuid "<<uuid<<" click";
-    MapDialog dlg(db);//КОСТЫЛЬ ДЛЯ ТЕСТА!
-    //PlaceEditDialog dlg(&db,uuid);
+    qDebug()<<"Device with uuid "<<uuid<<" click";    
+    PlaceEditDialog dlg(db,uuid);
     dlg.exec();
 
     //PlaceData place=db->getPlace(uuid);

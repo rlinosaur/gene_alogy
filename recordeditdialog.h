@@ -15,7 +15,7 @@ class RecordEditDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit RecordEditDialog(HumansDatabase *humansDatabase, QString recordUuid = "", QWidget *parent = 0);
+    explicit RecordEditDialog(HumansDatabase &humansDatabase, QString recordUuid = "", QWidget *parent = 0);
     ~RecordEditDialog();
     RecordData getRecordData(){return recordData;}
     static QString getTabTable(QString text);
@@ -64,7 +64,7 @@ private slots:
 private:
     Ui::RecordEditDialog *ui;
     RecordData recordData;
-    HumansDatabase *db;
+    HumansDatabase &db;
     QString recUid;
 
     QList<QStringList> humansData;

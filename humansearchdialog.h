@@ -17,7 +17,7 @@ class HumanSearchDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit HumanSearchDialog(HumansDatabase *humansDatabase, HumanSex sexData=humanSexUndefined, QString searchString="", QWidget *parent = 0);
+    explicit HumanSearchDialog(HumansDatabase &humansDatabase, HumanSex sexData=humanSexUndefined, QString searchString="", QWidget *parent = 0);
     ~HumanSearchDialog();    
     QString getHumanUuid(){return humanUuid;}
     QString getHumanInfo(){return humanInfo;}
@@ -38,7 +38,7 @@ private slots:
 private:
     Ui::HumanSearchDialog *ui;
     HumanSex sex;
-    HumansDatabase *db;
+    HumansDatabase &db;
     QSqlQueryModel model;
     QSortFilterProxyModel modelSort;
     QModelIndex currentSelectionIndex;

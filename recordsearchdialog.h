@@ -16,7 +16,7 @@ class RecordSearchDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit RecordSearchDialog(HumansDatabase *humansDatabase, QString humanId="", QString placeId="", QString searchString="", QWidget *parent = 0);
+    explicit RecordSearchDialog(HumansDatabase &humansDatabase, QString humanId="", QString placeId="", QString searchString="", QWidget *parent = 0);
     ~RecordSearchDialog();
 
 private slots:
@@ -37,7 +37,7 @@ private slots:
 
 private:
     Ui::RecordSearchDialog *ui;
-    HumansDatabase *db;
+    HumansDatabase &db;
     QSqlQueryModel model;
     QSortFilterProxyModel modelSort;
     QString huId;

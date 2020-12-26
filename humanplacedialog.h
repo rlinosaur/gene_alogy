@@ -14,7 +14,7 @@ class HumanPlaceDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit HumanPlaceDialog(HumansDatabase *humansDatabase, QString humanUuid, QString humanPlaceUuid="",QWidget *parent = 0);
+    explicit HumanPlaceDialog(HumansDatabase &humansDatabase, QString humanUuid, QString humanPlaceUuid="",QWidget *parent = 0);
     ~HumanPlaceDialog();
 
 private slots:
@@ -27,7 +27,7 @@ private slots:
 private:
     Ui::HumanPlaceDialog *ui;
 
-    HumansDatabase *db;
+    HumansDatabase &db;
 
     HumanPlaceData humanPlaceData;
     HumanData humanData;

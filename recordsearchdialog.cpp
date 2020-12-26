@@ -8,11 +8,12 @@
 #include "humansearchdialog.h"
 #include "placesearchdialog.h"
 
-RecordSearchDialog::RecordSearchDialog(HumansDatabase *humansDatabase, QString humanId, QString placeId, QString searchString,QWidget *parent) :
+RecordSearchDialog::RecordSearchDialog(HumansDatabase &humansDatabase, QString humanId, QString placeId, QString searchString,QWidget *parent) :
     QDialog(parent),
-    ui(new Ui::RecordSearchDialog)
+    ui(new Ui::RecordSearchDialog),
+    db(humansDatabase)
 {
-    if(!humansDatabase->isOpen())
+    if(!humansDatabase.isOpen())
     {
         QMessageBox::warning(this,"Внимание","База по-прежнему не открыта, а значит искать людей, увы, негде!");
         reject();
@@ -20,19 +21,18 @@ RecordSearchDialog::RecordSearchDialog(HumansDatabase *humansDatabase, QString h
     }
     ui->setupUi(this);
     this->setWindowFlags(this->windowFlags() | Qt::WindowMaximizeButtonHint);
-    setWindowTitle("Поиск записей");
-    db=humansDatabase;
+    setWindowTitle("Поиск записей");   
     huId=humanId;
 
     if(!huId.isEmpty())
     {
-        HumanData huData=db->getHuman(huId);
+        HumanData huData=db.getHuman(huId);
         ui->lineEditHuman->setText(huData.getHumanInfo());
     }
     plId=placeId;
     if(!plId.isEmpty())
     {
-        PlaceData plData=db->getPlace(plId);
+        PlaceData plData=db.getPlace(plId);
         ui->lineEditPlace->setText(plData.getPlaceInfo());
     }
 
@@ -66,10 +66,10 @@ void RecordSearchDialog::tableSearchActivateSlot(QModelIndex index)
 
 void RecordSearchDialog::on_pushButtonSearch_clicked()
 {
-    model.setQuery(HumansDatabase::getRecordSearchQuery(ui->lineEditSearch->text(),huId,plId),db->getDb());
+    model.setQuery(HumansDatabase::getRecordSearchQuery(ui->lineEditSearch->text(),huId,plId),db.getDb());
     ui->tableViewSearch->hideColumn(0);
     ui->tableViewSearch->resizeColumnsToContents();
-    ui->labelCount->setText("Найдено: "+db->getRecordSearchQueryCount(ui->lineEditSearch->text(),huId,plId,COMMONSEARCHFLAG_COUNTQUERY).toString());
+    ui->labelCount->setText("Найдено: "+db.getRecordSearchQueryCount(ui->lineEditSearch->text(),huId,plId,COMMONSEARCHFLAG_COUNTQUERY).toString());
 }
 
 void RecordSearchDialog::on_pushButtonSearchHuman_clicked()

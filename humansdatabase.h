@@ -61,8 +61,8 @@ public:
     bool editRecord(RecordData record);
     RecordData getRecord(QString uuid);
     bool deleteRecord(QString uuid);
-    bool addPlace(PlaceData place);
-    bool editPlace(PlaceData place);
+    bool addPlace(PlaceData place) const;
+    bool editPlace(PlaceData place) const;
     PlaceData getPlace(QString uuid) const;
     QList<PlaceData> getPlaces() const;
     bool deletePlace(QString uuid);

@@ -7,21 +7,20 @@
 #include "placesearchdialog.h"
 #include "geneoptions.h"
 
-HumanPlaceDialog::HumanPlaceDialog(HumansDatabase *humansDatabase, QString humanUuid, QString humanPlaceUuid, QWidget *parent) :
+HumanPlaceDialog::HumanPlaceDialog(HumansDatabase &humansDatabase, QString humanUuid, QString humanPlaceUuid, QWidget *parent) :
     QDialog(parent),
-    ui(new Ui::HumanPlaceDialog)
+    ui(new Ui::HumanPlaceDialog),
+    db(humansDatabase)
 {
     ui->setupUi(this);
     setLayout(ui->verticalLayoutMain);
 
-    if(!humansDatabase->isOpen())
+    if(!humansDatabase.isOpen())
     {
         QMessageBox::warning(this,"Внимание","База не открыта!");
         reject();
         return;
     }
-
-    db=humansDatabase;
 
     if(humanUuid.isEmpty())
     {
@@ -29,7 +28,7 @@ HumanPlaceDialog::HumanPlaceDialog(HumansDatabase *humansDatabase, QString human
         reject();
         return;
     }
-    humanData = db->getHuman(humanUuid);
+    humanData = db.getHuman(humanUuid);
     if(humanData.uuid.isNull())
     {
         QMessageBox::warning(this,"Внимание","Не удалось получить из базы данных данные человека. Увы!");
@@ -49,7 +48,7 @@ HumanPlaceDialog::HumanPlaceDialog(HumansDatabase *humansDatabase, QString human
         ui->pushButtonSaveAndClose->setText("Добавить и закрыть");
     }
     if(!hpUuid.isEmpty())
-        humanPlaceData=db->getHumanPlace(hpUuid);
+        humanPlaceData=db.getHumanPlace(hpUuid);
     else
         humanPlaceData.humanId=humanUuid;//А если да, то нет, т.е. из БД.
     fillHumanPlaceData();
@@ -65,7 +64,7 @@ void HumanPlaceDialog::fillHumanPlaceData()
 {
     if(!humanPlaceData.placeId.isEmpty())
     {
-        placeData=db->getPlace(humanPlaceData.placeId);
+        placeData=db.getPlace(humanPlaceData.placeId);
         ui->lineEditPlace->setText(placeData.getPlaceInfo());
     }
     ui->lineEditHuman->setText(humanData.getHumanInfo());
@@ -111,7 +110,7 @@ void HumanPlaceDialog::on_pushButtonSaveAndClose_clicked()
     {                
         if(humanPlaceData.uuid.isEmpty()) humanPlaceData.uuid=QUuid::createUuid().toString();
         qDebug()<<"our humanid 1:"<<humanPlaceData.humanId;
-        db->addHumanPlace(humanPlaceData);
+        db.addHumanPlace(humanPlaceData);
         qDebug()<<"HumanPlace added.";
         hpUuid=humanPlaceData.uuid;
         geneOptions.lastHumanPlace=humanPlaceData;
@@ -119,7 +118,7 @@ void HumanPlaceDialog::on_pushButtonSaveAndClose_clicked()
     }
     else
     {
-        db->editHumanPlace(humanPlaceData);
+        db.editHumanPlace(humanPlaceData);
         geneOptions.lastHumanPlace=humanPlaceData;
     }
     accept();

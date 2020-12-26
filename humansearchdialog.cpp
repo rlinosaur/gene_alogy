@@ -10,20 +10,20 @@
 #include "humaneditdialog.h"
 
 
-HumanSearchDialog::HumanSearchDialog(HumansDatabase *humansDatabase, HumanSex sexData, QString searchString, QWidget *parent) :
+HumanSearchDialog::HumanSearchDialog(HumansDatabase &humansDatabase, HumanSex sexData, QString searchString, QWidget *parent) :
     QDialog(parent),
-    ui(new Ui::HumanSearchDialog)
+    ui(new Ui::HumanSearchDialog),
+    db(humansDatabase)
 {
 
-    if(!humansDatabase->isOpen())
+    if(!humansDatabase.isOpen())
     {
         QMessageBox::warning(this,"Внимание","База по-прежнему не открыта, а значит искать людей, увы, негде!");
         reject();
     }
     ui->setupUi(this);
     ui->lineEditSearch->setText(searchString);
-    sex=sexData;
-    db=humansDatabase;    
+    sex=sexData;      
     modelSort.setSourceModel(&model);
     ui->tableViewSearch->setModel(&modelSort);
     ui->tableViewSearch->setSortingEnabled(true);
@@ -50,10 +50,10 @@ HumanSearchDialog::~HumanSearchDialog()
 void HumanSearchDialog::on_pushButtonSearch_clicked()
 {   
     if(!ui->lineEditSearch->text().isEmpty()) QApplication::clipboard()->setText(ui->lineEditSearch->text());
-    model.setQuery(HumansDatabase::getHumanSearchQuery(ui->lineEditSearch->text(),ui->comboBoxSex->itemData(ui->comboBoxSex->currentIndex())),db->getDb());
+    model.setQuery(HumansDatabase::getHumanSearchQuery(ui->lineEditSearch->text(),ui->comboBoxSex->itemData(ui->comboBoxSex->currentIndex())),db.getDb());
     ui->tableViewSearch->hideColumn(0);
     currentSelectionIndex=QModelIndex();
-    ui->labelCount->setText("Найдено: "+db->getHumanSearchQueryCount(ui->lineEditSearch->text(),ui->comboBoxSex->itemData(ui->comboBoxSex->currentIndex())).toString());
+    ui->labelCount->setText("Найдено: "+db.getHumanSearchQueryCount(ui->lineEditSearch->text(),ui->comboBoxSex->itemData(ui->comboBoxSex->currentIndex())).toString());
 }
 
 void HumanSearchDialog::on_lineEditSearch_returnPressed()

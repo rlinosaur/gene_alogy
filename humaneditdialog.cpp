@@ -12,22 +12,23 @@
 #include "recordsearchdialog.h"
 #include "geneoptions.h"
 
-HumanEditDialog::HumanEditDialog(HumansDatabase *humansDatabase, QString humanUuid, QWidget *parent) :
+HumanEditDialog::HumanEditDialog(HumansDatabase &humansDatabase, QString humanUuid, QWidget *parent) :
     QDialog(parent),
-    ui(new Ui::HumanEditDialog)
+    ui(new Ui::HumanEditDialog),
+    db(humansDatabase)
 {
     ui->setupUi(this);
 
-    if(!humansDatabase->isOpen())
+    if(!humansDatabase.isOpen())
     {
         QMessageBox::warning(this,"Внимание","База не открыта!");
     }
 
     this->setWindowFlags(this->windowFlags() | Qt::WindowMaximizeButtonHint);
 
-    db=humansDatabase;
+    //db=humansDatabase;
     hUid=humanUuid;
-    humanData=db->getHuman(hUid);//хотя в пустоте даст пустоту.
+    humanData=db.getHuman(hUid);//хотя в пустоте даст пустоту.
     if(!hUid.isEmpty())
     {
         setWindowTitle("Редактирование человека "+humanData.getHumanInfo());
@@ -66,7 +67,7 @@ HumanEditDialog::~HumanEditDialog()
 
 void HumanEditDialog::addFatherInfo(QString fatherUid)
 {
-    HumanData father=db->getHuman(fatherUid);
+    HumanData father=db.getHuman(fatherUid);
     humanData.father=father.uuid;
     ui->lineEditFather->setText(father.getHumanInfo());
     ui->lineEditFather->setToolTip(ui->lineEditFather->text());
@@ -75,7 +76,7 @@ void HumanEditDialog::addFatherInfo(QString fatherUid)
 
 void HumanEditDialog::addMotherInfo(QString motherUid)
 {
-    HumanData mother=db->getHuman(motherUid);
+    HumanData mother=db.getHuman(motherUid);
     humanData.mother=mother.uuid;
     ui->lineEditMother->setText(mother.getHumanInfo());
     ui->lineEditMother->setToolTip(ui->lineEditMother->text());
@@ -170,14 +171,14 @@ void HumanEditDialog::fillHumanData()
     ui->lineEditMarName->setText(humanData.marName);
     if(!humanData.father.isNull())
     {
-        HumanData father=db->getHuman(humanData.father.toString());
+        HumanData father=db.getHuman(humanData.father.toString());
         ui->lineEditFather->setText(father.getHumanInfo());
         ui->lineEditFather->setCursorPosition(0);
         ui->lineEditFather->setToolTip(ui->lineEditFather->text());
     }
     if(!humanData.mother.isNull())
     {
-        HumanData mother=db->getHuman(humanData.mother.toString());
+        HumanData mother=db.getHuman(humanData.mother.toString());
         ui->lineEditMother->setText(mother.getHumanInfo());
         ui->lineEditMother->setCursorPosition(0);
         ui->lineEditMother->setToolTip(ui->lineEditMother->text());
@@ -186,7 +187,7 @@ void HumanEditDialog::fillHumanData()
 
     //С местом рождения история особая, как всегда
     //ui->lineEditBirthPlace->setText(humanData.birthPlaceId);
-    PlaceData birthPlace=db->getPlace(humanData.birthPlaceId);
+    PlaceData birthPlace=db.getPlace(humanData.birthPlaceId);
     if(!birthPlace.name.isEmpty())
         ui->lineEditBirthPlace->setText(birthPlace.getPlaceInfo());
     else
@@ -222,7 +223,7 @@ void HumanEditDialog::updateChildrenData()
 {
     //Находим всех детей QList<QStringList> пойдёт, идентификатор и информация...
     //qDebug()<<"Ищем детей, однако";
-    childrenData=db->getChildrenInfo(humanData.uuid.toString());
+    childrenData=db.getChildrenInfo(humanData.uuid.toString());
     //qDebug()<<childrenData;
     //теперь этот лист надо экспортировать в listView.
    // QListWidget w;
@@ -236,7 +237,7 @@ void HumanEditDialog::updateChildrenData()
 void HumanEditDialog::updateSpousesData()
 {
     //qDebug()<<"Updating spouses";
-    spousesData=db->getSpousesInfo(humanData.uuid.toString(),humanData.sex);
+    spousesData=db.getSpousesInfo(humanData.uuid.toString(),humanData.sex);
     //qDebug()<<spousesData;
     ui->listWidgetSpouses->clear();
     for(int i=0;i<spousesData.count();i++)
@@ -247,7 +248,7 @@ void HumanEditDialog::updateSpousesData()
 
 void HumanEditDialog::updatePlacesData()
 {
-    placesData=db->getHumanPlacesInfo(humanData.uuid.toString());
+    placesData=db.getHumanPlacesInfo(humanData.uuid.toString());
     ui->listWidgetPlaces->clear();
     for(int i=0;i<placesData.count();i++)
     {
@@ -260,7 +261,7 @@ void HumanEditDialog::updatePlacesData()
 
 void HumanEditDialog::updateSiblingsData()
 {
-    siblingsData=db->getHumanSiblingsInfo(humanData.father.toString(),humanData.mother.toString(),hUid);
+    siblingsData=db.getHumanSiblingsInfo(humanData.father.toString(),humanData.mother.toString(),hUid);
     ui->listWidgetSiblings->clear();
     for(int i=0;i<siblingsData.count();i++)
     {
@@ -340,19 +341,19 @@ void HumanEditDialog::on_pushButtonOk_clicked()
     {
         //qDebug()<<"AddHuman: "<<humanData.uuid.toString();
         if(humanData.uuid.isNull()) humanData.uuid=QUuid::createUuid();
-        db->addHuman(humanData);
+        db.addHuman(humanData);
         hUid=humanData.uuid.toString();
         //qDebug()<<"Uuid in the end of redo and close"<<hUid;
         //qDebug()<<"AddHuman: "<<hUid;
         /*
-        bool res=db->addHuman(humanData);
+        bool res=db.addHuman(humanData);
         if(res)
             hUid=humanData.uuid.toString();
             */
     }
     else
     {
-        db->editHuman(humanData);//должно уже работать, кстати.
+        db.editHuman(humanData);//должно уже работать, кстати.
     }
     accept();
 }
@@ -412,7 +413,7 @@ void HumanEditDialog::on_pushButtonChildSearch_clicked()
     {
         return;
     }
-    db->addParent(dlg.getHumanUuid(),hUid,humanData.sex);
+    db.addParent(dlg.getHumanUuid(),hUid,humanData.sex);
     updateChildrenData();
     //только найти и там добавить ему родителя..без сложностей.
 }
@@ -478,7 +479,7 @@ void HumanEditDialog::on_pushButtonSave_clicked()
     if(hUid.isEmpty())
     {
         if(humanData.uuid.isNull()) humanData.uuid=QUuid::createUuid();
-        db->addHuman(humanData);
+        db.addHuman(humanData);
         hUid=humanData.uuid.toString();
         qDebug()<<"Uuid in the end of redo and stay"<<hUid;
         setWindowTitle("Редактирование человека "+humanData.getHumanInfo());
@@ -487,7 +488,7 @@ void HumanEditDialog::on_pushButtonSave_clicked()
     }
     else
     {
-        db->editHuman(humanData);//должно уже работать, кстати.
+        db.editHuman(humanData);//должно уже работать, кстати.
     }
     fillHumanData();//Пусть побудет тут для теста (хотя скорее всего останётся надолго...Но для проверки - ок.
 }
@@ -509,7 +510,7 @@ void HumanEditDialog::on_pushButtonDelete_clicked()
     switch (ret)
     {
        case QMessageBox::Ok:
-           db->deleteHuman(hUid);
+           db.deleteHuman(hUid);
            accept();
            break;
        case QMessageBox::Cancel:
@@ -547,7 +548,7 @@ void HumanEditDialog::on_pushButtonDeleteMarriage_clicked()
     {
        case QMessageBox::Ok:
            //index=ui->listWidgetSpouses->currentIndex();
-           db->deleteMarriageBySpouses(hUid,spousesData[ui->listWidgetSpouses->currentIndex().row()][0]);
+           db.deleteMarriageBySpouses(hUid,spousesData[ui->listWidgetSpouses->currentIndex().row()][0]);
            updateSpousesData();
            break;
        case QMessageBox::Cancel:
@@ -567,7 +568,7 @@ void HumanEditDialog::on_pushButton_clicked()
     QModelIndex index;
     index=ui->listWidgetSpouses->currentIndex();
     if(!index.isValid()) return;
-    FamilyData family = db->getMarriageBySpouses(hUid,spousesData[index.row()][0]);
+    FamilyData family = db.getMarriageBySpouses(hUid,spousesData[index.row()][0]);
     MarriageEditDialog dlg(db,family.uuid.toString());
     dlg.exec();
     updateSpousesData();
@@ -637,7 +638,7 @@ void HumanEditDialog::on_pushButtonUnionHumans_clicked()
     switch (ret)
     {
        case QMessageBox::Ok:
-           db->uniteHumans(hUid,dlg.getHumanUuid());
+           db.uniteHumans(hUid,dlg.getHumanUuid());
            reject();
            break;
        case QMessageBox::Cancel:
@@ -677,7 +678,7 @@ void HumanEditDialog::on_pushButtonPlaceDelete_clicked()
     switch (ret)
     {
        case QMessageBox::Ok:
-           db->deleteHumanPlace(ui->listWidgetPlaces->item(index.row())->data(Qt::UserRole).toString());
+           db.deleteHumanPlace(ui->listWidgetPlaces->item(index.row())->data(Qt::UserRole).toString());
            updatePlacesData();
            break;
        case QMessageBox::Cancel:
@@ -725,6 +726,6 @@ void HumanEditDialog::on_pushButtonPlaceAddLast_clicked()
     if(hPlace.placeId.isEmpty())return;
     hPlace.uuid=QUuid::createUuid().toString();
     hPlace.humanId=hUid;
-    db->addHumanPlace(hPlace);
+    db.addHumanPlace(hPlace);
     updatePlacesData();
 }

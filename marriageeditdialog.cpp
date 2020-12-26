@@ -7,20 +7,20 @@
 #include "humansearchdialog.h"
 #include "placesearchdialog.h"
 
-MarriageEditDialog::MarriageEditDialog(HumansDatabase *humansDatabase, QString familyUid, QWidget *parent) :
+MarriageEditDialog::MarriageEditDialog(HumansDatabase &humansDatabase, QString familyUid, QWidget *parent) :
     QDialog(parent),
-    ui(new Ui::MarriageEditDialog)
+    ui(new Ui::MarriageEditDialog),
+    db(humansDatabase)
 {
-    if(!humansDatabase->isOpen())
+    if(!humansDatabase.isOpen())
     {
         QMessageBox::warning(this,"Внимание","База не открыта!");
         reject();
         return;
     }
-    ui->setupUi(this);
-    db=humansDatabase;
+    ui->setupUi(this);   
     fUid=familyUid;
-    familyData=db->getMarriage(fUid);
+    familyData=db.getMarriage(fUid);
     qDebug()<<"Debug about family:"<<fUid;
     qDebug()<<familyUid;
     //qDebug()<<familyData;
@@ -47,7 +47,7 @@ MarriageEditDialog::~MarriageEditDialog()
 
 void MarriageEditDialog::addHusbandInfo(QString husbandId)
 {
-    husbandData=db->getHuman(husbandId);
+    husbandData=db.getHuman(husbandId);
     familyData.husband=husbandData.uuid;
     ui->lineEditHusband->setText(husbandData.getHumanInfo());
     ui->lineEditHusband->setCursorPosition(0);
@@ -55,7 +55,7 @@ void MarriageEditDialog::addHusbandInfo(QString husbandId)
 
 void MarriageEditDialog::addWifeInfo(QString wifeId)
 {
-    wifeData=db->getHuman(wifeId);
+    wifeData=db.getHuman(wifeId);
     familyData.wife=wifeData.uuid;
     ui->lineEditWife->setText(wifeData.getHumanInfo());
     ui->lineEditWife->setCursorPosition(0);
@@ -114,7 +114,7 @@ void MarriageEditDialog::on_pushButtonDeleteMarriage_clicked()
     switch (ret)
     {
        case QMessageBox::Ok:
-           db->deleteMarriage(fUid);
+           db.deleteMarriage(fUid);
            accept();
            break;
        case QMessageBox::Cancel:
@@ -139,13 +139,13 @@ void MarriageEditDialog::on_pushButtonOk_clicked()
         qDebug()<<"add new marriage"<<familyData.uuid.toString();
         qDebug()<<"add new marriage"<<familyData.husband.toString();
         qDebug()<<"add new marriage"<<familyData.wife.toString();
-        bool res=db->addMarriage(familyData);
+        bool res=db.addMarriage(familyData);
         if(res)
             fUid=familyData.uuid.toString();
     }
     else
     {
-        db->editMarriage(familyData);//должно уже работать, кстати.
+        db.editMarriage(familyData);//должно уже работать, кстати.
     }
     accept();
 }
@@ -154,9 +154,9 @@ void MarriageEditDialog::fillMarriageData()
 {
     ui->lineEditDate->setText(familyData.marriageDate);
     ui->textEdit->setText(familyData.note.join(";"));
-    ui->lineEditPlace->setText(db->getPlace(familyData.marriagePlace).getPlaceInfo());
-    ui->lineEditWife->setText(db->getHuman(familyData.wife.toString()).getHumanInfo());
-    ui->lineEditHusband->setText(db->getHuman(familyData.husband.toString()).getHumanInfo());
+    ui->lineEditPlace->setText(db.getPlace(familyData.marriagePlace).getPlaceInfo());
+    ui->lineEditWife->setText(db.getHuman(familyData.wife.toString()).getHumanInfo());
+    ui->lineEditHusband->setText(db.getHuman(familyData.husband.toString()).getHumanInfo());
 }
 
 QStringList MarriageEditDialog::collectMarriageData()

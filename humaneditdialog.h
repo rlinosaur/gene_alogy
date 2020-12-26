@@ -15,7 +15,7 @@ class HumanEditDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit HumanEditDialog(HumansDatabase *humansDatabase, QString humanUuid = "", QWidget *parent = 0);
+    explicit HumanEditDialog(HumansDatabase &humansDatabase, QString humanUuid = "", QWidget *parent = 0);
     ~HumanEditDialog();
 
     void addFatherInfo(QString fatherUid);
@@ -83,7 +83,7 @@ private slots:
 
 private:
     Ui::HumanEditDialog *ui;
-    HumansDatabase *db;
+    HumansDatabase &db;
     QString hUid;
     QString humanInfo;
     HumanData humanData;

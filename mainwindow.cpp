@@ -172,7 +172,7 @@ void MainWindow::on_pushButtonCreateRecord_clicked()
         messageDatabaseClosed();
         return;
     }
-    RecordEditDialog dlg(&db);
+    RecordEditDialog dlg(db);
     dlg.exec();
     initModelRecords();
 }
@@ -184,7 +184,7 @@ void MainWindow::on_pushButtonSearchHuman_clicked()
         messageDatabaseClosed();
         return;
     }
-    HumanSearchDialog dlg(&db,humanSexFemale);
+    HumanSearchDialog dlg(db,humanSexFemale);
     if(dlg.exec()==QDialog::Rejected) return;
     QString uuidd=dlg.getHumanUuid();
     HumanData datte=db.getHuman(uuidd);
@@ -215,7 +215,7 @@ void MainWindow::tableHumansActivate(QModelIndex index)
         messageDatabaseClosed();
         return;
     }
-    HumanEditDialog dlg(&db,modelHumansSort.data(modelHumansSort.index(index.row(),0)).toString());
+    HumanEditDialog dlg(db,modelHumansSort.data(modelHumansSort.index(index.row(),0)).toString());
     dlg.exec();
     initModelHumans();
 }
@@ -227,7 +227,7 @@ void MainWindow::tableRecordsActivate(QModelIndex index)
         messageDatabaseClosed();
         return;
     }
-    RecordEditDialog dlg(&db,modelRecordsSort.data(modelRecordsSort.index(index.row(),0)).toString());
+    RecordEditDialog dlg(db,modelRecordsSort.data(modelRecordsSort.index(index.row(),0)).toString());
     dlg.exec();
     initModelRecords();
 }
@@ -239,7 +239,7 @@ void MainWindow::tablePlacesActivate(QModelIndex index)
         messageDatabaseClosed();
         return;
     }
-    PlaceEditDialog dlg(&db,modelPlacesSort.data(modelPlacesSort.index(index.row(),0)).toString());
+    PlaceEditDialog dlg(db,modelPlacesSort.data(modelPlacesSort.index(index.row(),0)).toString());
     dlg.exec();
     initModelPlaces();
 
@@ -318,7 +318,7 @@ void MainWindow::on_pushButtonCreateIndividual_clicked()
         messageDatabaseClosed();
         return;
     }
-    HumanEditDialog dlg(&db);
+    HumanEditDialog dlg(db);
     dlg.exec();
     initModelHumans();
 }
@@ -337,7 +337,7 @@ void MainWindow::on_pushButtonEditHuman_clicked()
         QMessageBox::warning(this,"Внимание","Человек для редактирования не выбран!");
         return;
     }
-    HumanEditDialog dlg(&db,modelHumansSort.data(modelHumansSort.index(index.row(),0)).toString());
+    HumanEditDialog dlg(db,modelHumansSort.data(modelHumansSort.index(index.row(),0)).toString());
     dlg.exec();
     initModelHumans();
 }
@@ -356,7 +356,7 @@ void MainWindow::on_pushButtonEditRecord_clicked()
         QMessageBox::warning(this,"Внимание","Запись для редактирования не выбрана!");
         return;
     }
-    RecordEditDialog dlg(&db,modelRecordsSort.data(modelRecordsSort.index(index.row(),0)).toString());
+    RecordEditDialog dlg(db,modelRecordsSort.data(modelRecordsSort.index(index.row(),0)).toString());
     dlg.exec();
     initModelRecords();
 }
@@ -375,7 +375,7 @@ void MainWindow::on_pushButtonEditPlace_clicked()
         QMessageBox::warning(this,"Внимание","Место для редактирования не выбрано!");
         return;
     }
-    PlaceEditDialog dlg(&db,modelPlacesSort.data(modelPlacesSort.index(index.row(),0)).toString());
+    PlaceEditDialog dlg(db,modelPlacesSort.data(modelPlacesSort.index(index.row(),0)).toString());
     dlg.exec();
     initModelPlaces();
 }
@@ -387,7 +387,7 @@ void MainWindow::on_pushButtonPlaceAdd_clicked()
         messageDatabaseClosed();
         return;
     }
-    PlaceEditDialog dlg(&db);
+    PlaceEditDialog dlg(db);
     dlg.exec();
     initModelPlaces();
 }
@@ -558,7 +558,7 @@ void MainWindow::on_lineEditPlaceSearch_returnPressed()
 
 void MainWindow::on_pushButtonMiscGetHuman_clicked()
 {
-    HumanSearchDialog dlg(&db);
+    HumanSearchDialog dlg(db);
     dlg.exec();
     miscHumanId=dlg.getHumanUuid();
     ui->lineEditMiscGetHuman->setText(dlg.getHumanInfo());
@@ -610,7 +610,7 @@ void MainWindow::on_pushButton_clicked()
 
 void MainWindow::on_pushButtonMiscGetCousin_clicked()
 {
-    HumanSearchDialog dlg(&db);
+    HumanSearchDialog dlg(db);
     dlg.exec();
     miscCousinId=dlg.getHumanUuid();
     ui->lineEditMiscGetCousin->setText(dlg.getHumanInfo());
@@ -741,7 +741,7 @@ void MainWindow::on_pushButtonMiscTree_clicked()
 void MainWindow::mischListActivated(QModelIndex index)
 {
     QString selectedHumanUid=ui->listWidgetMisc->item(index.row())->data(Qt::UserRole).toString();
-    HumanEditDialog dlg(&db,selectedHumanUid);
+    HumanEditDialog dlg(db,selectedHumanUid);
     dlg.exec();
 }
 
@@ -1033,7 +1033,7 @@ void MainWindow::on_pushButtonGedcomExport_clicked()
 
 void MainWindow::on_pushButtonPlaceForRecord_clicked()
 {
-    PlaceSearchDialog dlg(&db);
+    PlaceSearchDialog dlg(db);
     if(dlg.exec()==QDialog::Rejected) return;
     ui->lineEditPlaceForRecord->setText(dlg.getPlaceInfo());
     placeIdForSearchRecords=dlg.getPlaceUuid();
@@ -1047,7 +1047,7 @@ void MainWindow::on_pushButtonPlaceForRecordClear_clicked()
 
 void MainWindow::on_pushButtonPlaceForHumansSearch_clicked()
 {
-    PlaceSearchDialog dlg(&db);
+    PlaceSearchDialog dlg(db);
     if(dlg.exec()==QDialog::Rejected) return;
     ui->lineEditPlaceForHuman->setText(dlg.getPlaceInfo());
     placeIdForSearchHumans=dlg.getPlaceUuid();

@@ -15,7 +15,7 @@ class PlaceEditDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit PlaceEditDialog(HumansDatabase *humansDatabase, QString placeUuid = "", QWidget *parent = 0);
+    explicit PlaceEditDialog(HumansDatabase &humansDatabase, QString placeUuid = "", QWidget *parent = 0);
     ~PlaceEditDialog();
 
     QString getPlaceUuid(){return pUid;}
@@ -38,7 +38,7 @@ private slots:
 
 private:
     Ui::PlaceEditDialog *ui;
-    HumansDatabase *db;
+    HumansDatabase &db;
     QString pUid;    
     PlaceData placeData;
 
